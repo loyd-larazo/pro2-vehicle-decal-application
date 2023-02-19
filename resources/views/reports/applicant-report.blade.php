@@ -52,14 +52,16 @@
             <th>Status</th>
             <td>{{ ucfirst($applicant->status) }}</td>
           </tr>
-          <tr>
-            <th>Verified By</th>
-            <td>{{ $applicant->verified->firstname . " " . $applicant->verified->middlename . " " . $applicant->verified->lastname }}</td>
-          </tr>
-          <tr>
-            <th>Verified Date</th>
-            <td>{{ $applicant->verified_date }}</td>
-          </tr>
+          @if ($applicant->verified)
+            <tr>
+              <th>Verified By</th>
+              <td>{{ $applicant->verified->firstname . " " . $applicant->verified->middlename . " " . $applicant->verified->lastname }}</td>
+            </tr>
+            <tr>
+              <th>Verified Date</th>
+              <td>{{ $applicant->verified_date }}</td>
+            </tr>
+          @endif
           @if ($applicant->remarks)
             <tr>
               <th>Remarks</th>
