@@ -1,0 +1,91 @@
+/* bootstrap override */
+.bg-primary {
+  background-color: #22216d !important;
+}
+
+.btn-primary {
+  background-color: #22216d !important;
+  border-color: #22216d !important;
+}
+
+.bg-success {
+  background-color: #20C401 !important;
+}
+
+.btn-success {
+  background-color: #20C401 !important;
+  border-color: #20C401 !important;
+}
+
+.text-danger {
+  color: #BE413C !important;
+}
+
+.alert-danger {
+  color: #BE413C !important;
+  background-color: #be413c4d !important;
+  border-color: #BE413C !important;
+}
+
+.text-success {
+  color: #20C401 !important;
+}
+
+.alert-success {
+  color: #20C401 !important;
+  background-color: #20C4014d !important;
+  border-color: #20C401 !important;
+}
+
+.bg-dark, .sb-sidenav-dark {
+  background-color: #22216d !important;
+}
+
+a {
+  color: #22216d;
+}
+
+/* end of bootstrap override */
+
+.logo {
+  height: 80px;
+}
+
+.logo-heading {
+  height: 80px;
+}
+
+.file {
+  padding-top: 30px !important;
+}
+
+#imgPreview {
+  height: 100px;
+}
+
+thead {
+  background: #22216d;
+  color: #fff;
+}
+
+.search {
+  width: 200px;
+}
+
+.preview-images {
+  height: 100px;
+  max-width: 200px;
+}
+
+.qr-code {
+  text-align: center;
+}
+
+.qr-code svg {
+  width: 200px;
+}
+
+/* Report CSS */
+.pnp-report {
+  height: 200px;
+}
