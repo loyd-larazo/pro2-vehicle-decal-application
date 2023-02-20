@@ -73,11 +73,11 @@
                 <td>{{ $vehicle->plate_number }}</td>
               </tr>
               <tr>
-                <th>Manufacturer</th>
+                <th>Make</th>
                 <td>{{ $vehicle->make }}</td>
               </tr>
               <tr>
-                <th>Model</th>
+                <th>Series</th>
                 <td>{{ $vehicle->model }}</td>
               </tr>
               <tr>

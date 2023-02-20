@@ -14,6 +14,13 @@
 
       <script src="/js/jquery-3.6.1.min.js"></script>
       <script src="/bootstrap/js/bootstrap.min.js"></script>
+      <script>
+        $(function() {
+          $(document).on('keydown', '.password', function(e) {
+            if (e.keyCode == 32) return false;
+          });
+        })
+      </script>
   </head>
   <body class="bg-primary">
     <div id="layoutAuthentication">
@@ -40,7 +47,7 @@
                         <label for="inputEmail">Email address</label>
                       </div>
                       <div class="form-floating mb-3">
-                        <input class="form-control" id="inputPassword" name="password" type="password" placeholder="Password" />
+                        <input class="form-control password" id="inputPassword" name="password" type="password" placeholder="Password" />
                         <label for="inputPassword">Password</label>
                       </div>
                       <div class="d-flex align-items-center justify-content-center mt-4 mb-0">

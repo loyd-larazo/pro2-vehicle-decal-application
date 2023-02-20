@@ -21,6 +21,13 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="/js/scripts.js"></script>
+    <script>
+      $(function() {
+        $(document).on('keydown', '.password', function(e) {
+          if (e.keyCode == 32) return false;
+        });
+      });
+    </script>
   </head>
   <body>
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">

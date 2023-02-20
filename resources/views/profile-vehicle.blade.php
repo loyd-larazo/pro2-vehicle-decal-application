@@ -48,8 +48,8 @@
           <tr>
             <th scope="col">Type</th>
             <th scope="col">Plate Number</th>
-            <th scope="col">Manufacturer</th>
-            <th scope="col">Model</th>
+            <th scope="col">Make</th>
+            <th scope="col">Series</th>
             <th scope="col">Year Model</th>
             <th scope="col">Color</th>
             <th scope="col">Status</th>
@@ -148,15 +148,15 @@
           </div>
 
           <div class="form-floating mb-3">
-            <input class="form-control" id="make" type="text" name="make" placeholder="Enter Manufacturer" required />
-            <label for="make">Manufacturer</label>
+            <input class="form-control" id="make" type="text" name="make" placeholder="Enter Make" required />
+            <label for="make">Make</label>
           </div>
 
           <div class="row mb-3">
             <div class="col-md-6">
               <div class="form-floating mb-3 mb-md-0">
-                <input class="form-control" id="model" type="text" name="model" placeholder="Enter Model" required />
-                <label for="model">Model</label>
+                <input class="form-control" id="model" type="text" name="model" placeholder="Enter Series" required />
+                <label for="model">Series</label>
               </div>
             </div>
             <div class="col-md-6">

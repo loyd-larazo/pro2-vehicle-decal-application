@@ -12,8 +12,8 @@
             <th>Full Name</th>
             <th>Type</th>
             <th>Plate Number</th>
-            <th>Manufacturer</th>
-            <th>Model</th>
+            <th>Make</th>
+            <th>Series</th>
             <th>Year Model</th>
             <th>Color</th>
             <th>Engine No.</th>

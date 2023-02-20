@@ -160,13 +160,13 @@
               <div class="row">
                 <div class="col-md-6 ps-0">
                   <div class="form-floating mb-3 mb-md-0">
-                    <input class="form-control" id="password" type="password" name="password" placeholder="Create a password" />
+                    <input class="form-control password" id="password" type="password" name="password" placeholder="Create a password" />
                     <label for="password">Password</label>
                   </div>
                 </div>
                 <div class="col-md-6 pe-0">
                   <div class="form-floating mb-3 mb-md-0">
-                    <input class="form-control" id="passwordConfirm" type="password" name="confirmPassword" placeholder="Confirm password" />
+                    <input class="form-control password" id="passwordConfirm" type="password" name="confirmPassword" placeholder="Confirm password" />
                     <label for="passwordConfirm">Confirm Password</label>
                   </div>
                 </div>

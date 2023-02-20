@@ -23,8 +23,13 @@
             hideError();
 
             var email = $('#inputEmail').val();
-            if (!validateEmail(email)) {
+            var confirmEmail = $('#confirmInputEmail').val();
+            if (!validateEmail(email) || !validateEmail(confirmEmail)) {
               return showError("Invalid email format");
+            }
+
+            if (email != confirmEmail) {
+              return showError("Email not match");
             }
 
             var password = $('#inputPassword').val();
@@ -51,6 +56,10 @@
               }
               reader.readAsDataURL(file);
             }
+          });
+
+          $(document).on('keydown', '.password', function(e) {
+            if (e.keyCode == 32) return false;
           });
         })
       </script>
@@ -118,20 +127,30 @@
                         <input required class="form-control" id="inputLastName" type="text" name="lastname" placeholder="Enter your last name" value="{{ isset($applicant) ? $applicant->lastname : '' }}"/>
                         <label for="inputLastName">Last name</label>
                       </div>
-                      <div class="form-floating mb-3">
-                        <input required class="form-control" id="inputEmail" type="email" name="email" placeholder="name@example.com" value="{{ isset($applicant) ? $applicant->email : '' }}"/>
-                        <label for="inputEmail">Email address</label>
+                      <div class="row mb-3">
+                        <div class="col-md-6">
+                          <div class="form-floating mb-3 mb-md-0">
+                            <input required class="form-control" id="inputEmail" type="email" name="email" placeholder="name@example.com" value="{{ isset($applicant) ? $applicant->email : '' }}"/>
+                            <label for="inputEmail">Email address</label>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-floating mb-3 mb-md-0">
+                            <input required class="form-control" id="confirmInputEmail" type="email" name="confirm-email" placeholder="name@example.com" value="{{ isset($applicant) ? $applicant->email : '' }}"/>
+                            <label for="confirmInputEmail">Confirm Email address</label>
+                          </div>
+                        </div>
                       </div>
                       <div class="row mb-3">
                         <div class="col-md-6">
                           <div class="form-floating mb-3 mb-md-0">
-                            <input required class="form-control" id="inputPassword" type="password" name="password" placeholder="Create a password" />
+                            <input required class="form-control password" id="inputPassword" type="password" name="password" placeholder="Create a password" />
                             <label for="inputPassword">Password</label>
                           </div>
                         </div>
                         <div class="col-md-6">
                           <div class="form-floating mb-3 mb-md-0">
-                            <input required class="form-control" id="inputPasswordConfirm" type="password" name="confirmPassword" placeholder="Confirm password" />
+                            <input required class="form-control password" id="inputPasswordConfirm" type="password" name="confirmPassword" placeholder="Confirm password" />
                             <label for="inputPasswordConfirm">Confirm Password</label>
                           </div>
                         </div>
@@ -172,13 +191,22 @@
                       <div class="row mb-3">
                         <div class="col-md-6">
                           <div class="form-floating mb-3">
-                            <input required class="form-control" id="mobile" type="text" name="mobile" placeholder="Enter your Mobile Number" value="{{ isset($applicant) ? $applicant->mobile : '' }}" />
+                            <input 
+                              required 
+                              class="form-control" 
+                              id="mobile" 
+                              type="number" 
+                              maxlength="11" 
+                              name="mobile" 
+                              oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                              placeholder="Enter your Mobile Number" 
+                              value="{{ isset($applicant) ? $applicant->mobile : '' }}" />
                             <label for="mobile">Mobile Number</label>
                           </div>
                         </div>
                         <div class="col-md-6">
                           <div class="form-floating mb-3">
-                            <input class="form-control" id="telephone" type="text" name="telephone" placeholder="Enter your Telephone Number" value="{{ isset($applicant) ? $applicant->telephone : '' }}" />
+                            <input class="form-control" id="telephone" type="number" name="telephone" placeholder="Enter your Telephone Number" value="{{ isset($applicant) ? $applicant->telephone : '' }}" />
                             <label for="telephone">Telephone Number</label>
                           </div>
                         </div>
