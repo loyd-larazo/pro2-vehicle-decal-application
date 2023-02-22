@@ -291,7 +291,7 @@
 
       $('.renewVehicle').click(function() {
         var id = $(this).data('id');
-        $('#renew').attr('href', `/release/${id}?status=renew`)
+        $('#renew').attr('href', `/release/${id}/renew`)
       })
 
       $('.viewVehicle').click(function() {
