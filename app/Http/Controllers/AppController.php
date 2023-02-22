@@ -13,6 +13,15 @@ use App\Models\VehicleImage;
 class AppController extends Controller
 {
   public function dashboard(Request $request) {
+    $user = $request->get('user');
+    if ($user->type == 'admin') {
+      return redirect('/applicants');
+    } else if ($user->type == 'issuer') {
+      return redirect('/release');
+    } else if ($user->type == 'user') {
+      return redirect('/profile/vehicles');
+    }
+
     return view('dashboard');
   }
 
@@ -74,6 +83,7 @@ class AppController extends Controller
   public function profileVehicles(Request $request) {
     $user = $request->get('user');
     $search = $request->get('search');
+    $status = $request->get('status') ?? 'pending';
     $page = $request->get('page') ?? 1;
 
     Paginator::currentPageResolver(function() use ($page) {
@@ -81,6 +91,7 @@ class AppController extends Controller
     });
 
     $vehicles = UserVehicle::with(['photos'])
+                          ->where('verified_status', $status)
                           ->where(function($query) use ($search) {
                             $query->where('make', 'like', "%$search%")
                                   ->orWhere('plate_number', 'like', "%$search%")
@@ -97,6 +108,7 @@ class AppController extends Controller
       'vehicles' => $vehicles,
       'search' => $search,
       'page' => $page,
+      'status' => $status,
     ]);
   }
 

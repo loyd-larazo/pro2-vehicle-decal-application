@@ -90,8 +90,8 @@
                     <button class="btn btn-sm btn-primary viewVehicle" data-status="{{ $vehicle->verified_status }}" data-type="vehicle" data-json="{{ json_encode($vehicle) }}" data-bs-toggle="modal" data-bs-target="#viewVehicleModal">Vehicle</button>
                     <button class="btn btn-sm btn-primary viewVehicle" data-type="user" data-json="{{ json_encode($vehicle) }}" data-bs-toggle="modal" data-bs-target="#viewUserModal">User</button>
                     @if ($vehicle->verified_status == "pending")
-                      <button class="btn btn-sm btn-success verify" data-id="{{ $vehicle->id }}" data-type="approved" data-bs-toggle="modal" data-bs-target="#verifyModal">Approve</button>
-                      <button class="btn btn-sm btn-danger verify" data-id="{{ $vehicle->id }}" data-type="rejected" data-bs-toggle="modal" data-bs-target="#verifyModal">Reject</button>
+                      <button class="btn btn-sm btn-success verify" data-email="{{ $vehicle->user->email }}" data-id="{{ $vehicle->id }}" data-type="approved" data-bs-toggle="modal" data-bs-target="#verifyModal">Approve</button>
+                      <button class="btn btn-sm btn-danger verify" data-email="{{ $vehicle->user->email }}" data-id="{{ $vehicle->id }}" data-type="rejected" data-bs-toggle="modal" data-bs-target="#verifyModal">Reject</button>
                     @endif
                   </td>
                 </tr>
@@ -309,13 +309,28 @@
           <div class="row mb-3">
             <div class="col-md-6">
               <div class="form-floating mb-3">
-                <input disabled class="form-control" id="mobile" type="text" name="mobile" placeholder="Enter your Mobile Number" />
+                <input 
+                  disabled 
+                  class="form-control" 
+                  id="mobile" 
+                  type="text" 
+                  name="mobile" 
+                  onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
+                  oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                  placeholder="Enter your Mobile Number" />
                 <label for="mobile">Mobile Number</label>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-floating mb-3">
-                <input disabled class="form-control" id="telephone" type="text" name="telephone" placeholder="Enter your Telephone Number" />
+                <input 
+                  disabled 
+                  class="form-control" 
+                  id="telephone" 
+                  type="text" 
+                  name="telephone" 
+                  onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
+                  placeholder="Enter your Telephone Number" />
                 <label for="telephone">Telephone Number</label>
               </div>
             </div>
@@ -453,6 +468,7 @@
       $('.verify').click(function() {
         var id = $(this).data('id');
         var type = $(this).data('type');
+        var email = $(this).data('email');
 
         $('.modalType').html(capitalize(type));
 
@@ -464,14 +480,25 @@
           $('#verifyBtn').removeClass('btn-success').addClass('btn-danger');
         }
 
-        $('#verifyBtn').attr('data-id', id).attr('data-type', type);
+        $('#verifyBtn').attr('data-id', id).attr('data-type', type).attr('data-email', email);
       });
 
       $('#verifyBtn').click(function() {
         var id = $(this).data('id');
         var type = $(this).data('type');
+        var email = $(this).data('email');
+        var baseUrl = "{{ URL::to('/') }}";
 
-        location.href = `/vehicle/${id}/${type}`;
+        var data = {
+          to_email: email,
+          logo: `${baseUrl}/images/logo.png`,
+          status: type,
+          remarks: type == 'approved' ? 'You can now pay and claim your sticker/passcard.' : ''
+        };
+
+        sendVehicleUpdate(data, function() {
+          location.href = `/vehicle/${id}/${type}`;
+        });
       });
 
       $('#downloadQrCode').click(function() {

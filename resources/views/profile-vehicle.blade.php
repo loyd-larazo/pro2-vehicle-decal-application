@@ -28,6 +28,18 @@
 
     <form class="row mb-2" action="/profile/vehicles" method="GET">
       <div class="col-auto mt-2">
+        <div class="input-group">
+          <select class="form-select" onchange="this.form.submit()" id="status" name="status">
+            <option value="pending" {{ $status && $status == 'pending' ? 'selected' : '' }}>Pending</option>
+            <option value="approved" {{ $status && $status == 'approved' ? 'selected' : '' }}>Approved</option>
+            <option value="rejected" {{ $status && $status == 'rejected' ? 'selected' : '' }}>Rejected</option>
+          </select>
+          <div class="form-outline pt-1 ms-2">
+            Vehicle Status
+          </div>
+        </div>
+      </div>
+      <div class="col-auto mt-2">
       </div>
       <div class="col"></div>
       <div class="col-auto mt-2">
@@ -76,9 +88,9 @@
                   @if ($vehicle->issued_status == 'expired')
                     <button class="btn btn-sm btn-success renewVehicle" data-id="{{ $vehicle->id }}" data-json="{{ json_encode($vehicle) }}" data-bs-toggle="modal" data-bs-target="#verifyModal">Renew</button>
                   @endif
-                  @if (Session::get('userType') && in_array(Session::get('userType'), ["user"]))
+                  {{-- @if (Session::get('userType') && in_array(Session::get('userType'), ["user"]))
                     <button class="btn btn-sm btn-warning viewVehicle" data-action="edit" data-id="{{ $vehicle->id }}" data-json="{{ json_encode($vehicle) }}" data-bs-toggle="modal" data-bs-target="#viewVehicleModal">Edit</button>
-                  @endif
+                  @endif --}}
                 </td>
               </tr>
             @endforeach

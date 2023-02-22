@@ -47,13 +47,13 @@ class ApplicantController extends Controller
       if ($applicantExists && $applicantExists->status != "request_change") {
         $msg = "";
         if ($applicantExists->status == 'rejected') {
-          $msg = "Your is already rejected!";
+          $msg = "Your previous application has been rejected!";
         } else if ($applicantExists->status == 'pending') {
-          $msg = "Application with the same email is already exists!";
+          $msg = "Application with the same email already exists!";
         } else if ($applicantExists->status == 'approved') {
-          $msg = "Your application is already approved, you can now login.";
+          $msg = "Your application is approved, you can now login.";
         }
-        return view('/application', ['error' => 'Application with the same email is already exists!', 'username' => $username]);
+        return view('/application', ['error' => $msg, 'email' => $email]);
       }
     }
 

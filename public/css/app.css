@@ -47,6 +47,16 @@ a {
 
 /* end of bootstrap override */
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 .logo {
   height: 80px;
 }
@@ -60,6 +70,7 @@ a {
 }
 
 #imgPreview {
+  max-width: 100%;
   height: 100px;
 }
 

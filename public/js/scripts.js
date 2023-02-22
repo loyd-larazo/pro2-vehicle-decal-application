@@ -59,12 +59,31 @@ function sendEmailVerify(data) {
     remarks: data.remarks,
   };
 
-  emailjs.init("7PpgiBw_6o_GCy8J-");
-  emailjs.send('service_aspsnk7', 'template_6sjn1hu', templateParams)
+  emailjs.init("W7LFxtxcUYAk0VI6Q");
+  emailjs.send('service_vryhqur', 'template_4tbbbbj', templateParams)
     .then(function(response) {
        console.log('SUCCESS!', response.status, response.text);
     }, function(error) {
        console.log('FAILED...', error);
+    });
+}
+
+function sendVehicleUpdate(data, cb) {
+  var templateParams = {
+    to_email: data.to_email,
+    logo: data.logo,
+    status: data.status,
+    remarks: data.remarks
+  };
+
+  emailjs.init("W7LFxtxcUYAk0VI6Q");
+  emailjs.send('service_vryhqur', 'template_7rpkakg', templateParams)
+    .then(function(response) {
+       console.log('SUCCESS!', response.status, response.text);
+       cb();
+    }, function(error) {
+       console.log('FAILED...', error);
+       cb();
     });
 }
 
@@ -84,4 +103,15 @@ function saveSvg(svgEl, name) {
   document.body.appendChild(downloadLink);
   downloadLink.click();
   document.body.removeChild(downloadLink);
+}
+
+function numberOnly(number, isMobile) {
+  number = Math.abs(number)
+  if (isMobile) {
+    if (number.length > this.maxLength) {
+      number = number.slice(0, this.maxLength);
+    }
+  }
+
+  return number;
 }

@@ -110,13 +110,29 @@
         <div class="row mb-3">
           <div class="col-md-6">
             <div class="form-floating mb-3">
-              <input required class="form-control" id="mobile" type="text" name="mobile" placeholder="Enter your Mobile Number" value="{{ isset($user) ? $user->mobile : '' }}" />
+              <input 
+                required 
+                class="form-control" 
+                id="mobile" 
+                type="text" 
+                name="mobile" 
+                placeholder="Enter your Mobile Number" 
+                onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
+                oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                value="{{ isset($user) ? $user->mobile : '' }}" />
               <label for="mobile">Mobile Number</label>
             </div>
           </div>
           <div class="col-md-6">
             <div class="form-floating mb-3">
-              <input class="form-control" id="telephone" type="text" name="telephone" placeholder="Enter your Telephone Number" value="{{ isset($user) ? $user->telephone : '' }}" />
+              <input 
+                class="form-control" 
+                id="telephone" 
+                type="text" 
+                name="telephone" 
+                placeholder="Enter your Telephone Number" 
+                onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
+                value="{{ isset($user) ? $user->telephone : '' }}" />
               <label for="telephone">Telephone Number</label>
             </div>
           </div>

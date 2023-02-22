@@ -216,13 +216,28 @@
           <div class="row mb-3">
             <div class="col-md-6">
               <div class="form-floating mb-3">
-                <input disabled class="form-control" id="mobile" type="text" name="mobile" placeholder="Enter your Mobile Number" />
+                <input 
+                  disabled 
+                  class="form-control" 
+                  id="mobile" 
+                  type="text" 
+                  name="mobile" 
+                  onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
+                  oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                  placeholder="Enter your Mobile Number" />
                 <label for="mobile">Mobile Number</label>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-floating mb-3">
-                <input disabled class="form-control" id="telephone" type="text" name="telephone" placeholder="Enter your Telephone Number" />
+                <input 
+                  disabled 
+                  class="form-control" 
+                  id="telephone" 
+                  type="text" 
+                  name="telephone" 
+                  onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
+                  placeholder="Enter your Telephone Number" />
                 <label for="telephone">Telephone Number</label>
               </div>
             </div>

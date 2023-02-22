@@ -61,6 +61,14 @@
           $(document).on('keydown', '.password', function(e) {
             if (e.keyCode == 32) return false;
           });
+
+          $('#agree').change(function() {
+            if (this.checked) {
+              $('#submitForm').removeAttr('disabled');
+            } else {
+              $('#submitForm').attr('disabled', 'disabled');
+            }
+          })
         })
       </script>
   </head>
@@ -198,7 +206,8 @@
                               type="number" 
                               maxlength="11" 
                               name="mobile" 
-                              oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                              onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
+                              oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
                               placeholder="Enter your Mobile Number" 
                               value="{{ isset($applicant) ? $applicant->mobile : '' }}" />
                             <label for="mobile">Mobile Number</label>
@@ -206,7 +215,14 @@
                         </div>
                         <div class="col-md-6">
                           <div class="form-floating mb-3">
-                            <input class="form-control" id="telephone" type="number" name="telephone" placeholder="Enter your Telephone Number" value="{{ isset($applicant) ? $applicant->telephone : '' }}" />
+                            <input 
+                              class="form-control" 
+                              id="telephone" 
+                              type="number" 
+                              name="telephone" 
+                              placeholder="Enter your Telephone Number" 
+                              onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
+                              value="{{ isset($applicant) ? $applicant->telephone : '' }}" />
                             <label for="telephone">Telephone Number</label>
                           </div>
                         </div>
@@ -219,8 +235,21 @@
                         <img id="imgPreview" src="{{ isset($applicant) ? '/storage/'.$applicant->pnp_id_picture : '' }}" />
                       </div>
 
+                      <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="agree">
+                        <label class="form-check-label" for="agree">
+                          After having duly sworn to in accordance with law, I do hereby depose and state; 
+                          I am an applicant for RHQ-PNP decal/passcard; 
+                          All documents I have submitted to support my application for decal/passcard are machine copies from original documents; 
+                          I shall abide by all Camp Rules and Regulations pertaining to operation and routing of vehicles, speed limits and parking, Presidential Decree 96 and the Land Transportation Code while inside the Camp; and 
+                          I shall surrender the decal/passcard to RID/R2 upon sale or transfer of my vehicle. 
+                        </label>
+                      </div>
+
                       <div class="mt-4 mb-0">
-                        <div class="d-grid"><button type="submit" class="btn btn-primary btn-block">{{ isset($applicant) ? 'Update' : 'Send' }} Application</button></div>
+                        <div class="d-grid">
+                          <button disabled type="submit" id="submitForm" class="btn btn-primary btn-block">{{ isset($applicant) ? 'Update' : 'Send' }} Application</button>
+                        </div>
                       </div>
                     </form>
                   </div>
