@@ -83,7 +83,9 @@ class VehicleController extends Controller
       $userVehicle->save();
     }
 
-    return redirect('/vehicles')->with('success', "Vehicle has been approved and QR code has been generated!");
+    $msg = $status == "approved" ? "Vehicle has been approved and QR code has been generated!" : "Vehicle has been rejected.";
+
+    return redirect('/vehicles')->with('success', $msg);
   }
 
   private function getNextCode($code) {
