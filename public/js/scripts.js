@@ -115,3 +115,11 @@ function numberOnly(number, isMobile) {
 
   return number;
 }
+
+function initImagePreview() {
+  $('.prev-image').click(function() {
+    var imgUrl = $(this).attr('src');
+    $('#previewImageBody').attr('src', imgUrl);
+    $('#previewImage').modal('show');
+  });
+}

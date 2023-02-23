@@ -211,7 +211,7 @@
             </div>
             <label id="orCrLabel">OR/CR</label>
             <div class="form-floating mb-3 text-center">
-              <img id="orCrPreview" class="preview-images"/>
+              <img id="orCrPreview" class="preview-images prev-image"/>
             </div>
           </div>
           
@@ -273,7 +273,8 @@
           if (type == 'src') {
             $(target).attr('src', event.target.result);
           } else if (type == 'element') {
-            $(target).append(`<img class="preview-images" src="${event.target.result}"/>`);
+            $(target).append(`<img class="preview-images prev-image" src="${event.target.result}"/>`);
+            initImagePreview();
           }
         }
         reader.readAsDataURL(file);
@@ -329,10 +330,11 @@
         var photosStr = '';
         if (data && data.photos && data.photos.length) {
           data.photos.map(p => {
-            photosStr += `<img class="preview-images" src="/storage/${p.image}"/>`;
+            photosStr += `<img class="preview-images prev-image" src="/storage/${p.image}"/>`;
           });
         }
         $('.photos-preview').html(photosStr);
+        initImagePreview();
 
         $('#modalHeader').html(capitalize(action));
 

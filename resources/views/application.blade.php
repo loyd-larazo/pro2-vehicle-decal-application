@@ -232,7 +232,7 @@
                         <label for="pnpId">PNP ID Picture</label>
                       </div>
                       <div class="form-floating mb-3 text-center">
-                        <img id="imgPreview" src="{{ isset($applicant) ? '/storage/'.$applicant->pnp_id_picture : '' }}" />
+                        <img class="prev-image" id="imgPreview" src="{{ isset($applicant) ? '/storage/'.$applicant->pnp_id_picture : '' }}" />
                       </div>
 
                       <div class="mb-3 form-check">

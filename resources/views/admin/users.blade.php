@@ -242,7 +242,7 @@
               <label for="pnpId">PNP ID Picture</label>
             </div>
             <div class="form-floating mb-3 text-center">
-              <img id="imgPreview" />
+              <img id="imgPreview" class="prev-image"/>
             </div>
           </div>
         </div>

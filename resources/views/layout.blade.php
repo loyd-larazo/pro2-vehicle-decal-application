@@ -26,6 +26,8 @@
         $(document).on('keydown', '.password', function(e) {
           if (e.keyCode == 32) return false;
         });
+
+        initImagePreview();
       });
     </script>
   </head>
@@ -138,6 +140,20 @@
             
           </div>
         </main>
+      </div>
+    </div>
+
+    <div class="modal fade" id="previewImage" aria-hidden="true" aria-labelledby="previewImageLabel" tabindex="-1">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="previewImageLabel"></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <img id="previewImageBody" />
+          </div>
+        </div>
       </div>
     </div>
   </body>

@@ -245,7 +245,7 @@
           <div id="idPreview">
             <label>PNP ID:</label>
             <div class="form-floating mb-3 text-center">
-              <img id="imgPreview" />
+              <img id="imgPreview" class="prev-image" />
             </div>
           </div>
         </div>

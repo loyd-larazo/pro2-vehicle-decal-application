@@ -212,7 +212,7 @@
           <div>
             <label id="orCrLabel">OR/CR</label>
             <div class="form-floating mb-3 text-center">
-              <img id="orCrPreview" class="preview-images"/>
+              <img id="orCrPreview" class="preview-images prev-image"/>
             </div>
           </div>
           
@@ -338,7 +338,7 @@
           <div id="idPreview">
             <label for="pnpId">PNP ID Picture</label>
             <div class="form-floating mb-3 text-center">
-              <img id="imgPreview" />
+              <img id="imgPreview" class="prev-image"/>
             </div>
           </div>
         </div>
@@ -444,10 +444,11 @@
           var photosStr = '';
           if (data && data.photos && data.photos.length) {
             data.photos.map(p => {
-              photosStr += `<img class="preview-images" src="/storage/${p.image}"/>`;
+              photosStr += `<img class="preview-images prev-image" src="/storage/${p.image}"/>`;
             });
           }
           $('.photos-preview').html(photosStr);
+          initImagePreview();
         } else if (type == 'user') {
           $('input[name="firstname"]').val(data ? data.user.firstname : '');
           $('input[name="middlename"]').val(data ? data.user.middlename : '');

@@ -144,7 +144,7 @@
             <label for="pnpId">PNP ID Picture</label>
           </div>
           <div class="form-floating mb-3 text-center">
-            <img id="imgPreview" src="{{ isset($user) ? '/storage/'.$user->pnp_id_picture : '' }}" />
+            <img id="imgPreview" class="prev-image" src="{{ isset($user) ? '/storage/'.$user->pnp_id_picture : '' }}" />
           </div>
         @endif
 

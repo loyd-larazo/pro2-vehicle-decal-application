@@ -100,3 +100,11 @@ thead {
 .pnp-report {
   height: 200px;
 }
+
+.prev-image {
+  cursor: pointer;
+}
+
+#previewImageBody {
+  width: 100%;
+}
