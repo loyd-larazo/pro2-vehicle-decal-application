@@ -112,13 +112,11 @@
             <div class="form-floating mb-3">
               <input 
                 required 
-                class="form-control" 
+                class="form-control mobile-number" 
                 id="mobile" 
                 type="text" 
                 name="mobile" 
                 placeholder="Enter your Mobile Number" 
-                onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
-                oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
                 value="{{ isset($user) ? $user->mobile : '' }}" />
               <label for="mobile">Mobile Number</label>
             </div>
@@ -159,6 +157,8 @@
 
   <script>
     $(function() {
+      secureMobile();
+      
       $("#changePassword").prop("checked", false);
 
       $('#changePassword').change(function() {

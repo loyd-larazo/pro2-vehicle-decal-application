@@ -18,6 +18,8 @@
 
       <script>
         $(function() {
+          secureMobile();
+
           $('#applicationForm').submit(function(e) {
             e.preventDefault();
             hideError();
@@ -201,13 +203,11 @@
                           <div class="form-floating mb-3">
                             <input 
                               required 
-                              class="form-control" 
+                              class="form-control mobile-number" 
                               id="mobile" 
-                              type="number" 
+                              type="text" 
                               maxlength="11" 
                               name="mobile" 
-                              onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
-                              oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
                               placeholder="Enter your Mobile Number" 
                               value="{{ isset($applicant) ? $applicant->mobile : '' }}" />
                             <label for="mobile">Mobile Number</label>
