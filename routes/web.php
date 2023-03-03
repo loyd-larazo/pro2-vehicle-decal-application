@@ -43,6 +43,7 @@ Route::middleware([ValidateUser::class])->group(function () {
 
   Route::get('/vehicles', [VehicleController::class, 'index'])->name('vehicles');
   Route::get('/vehicle/{id}/{status}', [VehicleController::class, 'updateVehicle']);
+  Route::get('/vehicle/user/plate/{plate}', [VehicleController::class, 'validatePlatenumber']);
 
   Route::get('/release', [VehicleController::class, 'release'])->name('release');
   Route::get('/release/{id}/{status}', [VehicleController::class, 'updateSticker']);

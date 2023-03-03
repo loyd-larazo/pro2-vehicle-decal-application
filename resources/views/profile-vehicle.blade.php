@@ -280,6 +280,21 @@
         reader.readAsDataURL(file);
       }
 
+      $('#userForm').submit(function(e) {
+        e.preventDefault();
+        hideError();
+
+        var plateNum = $('#plateNumber').val();
+        $.get(`/vehicle/user/plate/${plateNum}`, (data, status) => {
+          console.log(data.data);
+          if (data.data) {
+            showError("Plate number already exists.");
+          } else {
+            $(this).unbind('submit').submit();
+          }
+        });
+      });
+
       $('.file').change(function() {
         const preview = $(this).data('preview');
         const target = $(this).data('target');

@@ -51,7 +51,7 @@ class ApplicantController extends Controller
         } else if ($applicantExists->status == 'pending') {
           $msg = "Application with the same email already exists!";
         } else if ($applicantExists->status == 'approved') {
-          $msg = "Your application is approved, you can now login.";
+          $msg = "Your previous application has been approved, you can now login.";
         }
         return view('/application', ['error' => $msg, 'email' => $email]);
       }

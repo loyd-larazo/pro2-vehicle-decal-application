@@ -182,4 +182,12 @@ class VehicleController extends Controller
       }
     }
   }
+
+  public function validatePlatenumber(Request $request, $plateNumber) {
+
+    $userVehicle = UserVehicle::where('plate_number', $plateNumber)
+                              ->first();
+                        
+    return response()->json(['data' => $userVehicle ? true : false]);
+  }
 }
