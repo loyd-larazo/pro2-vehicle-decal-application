@@ -26,7 +26,12 @@ class Applicant extends Model
         'verified_date',
         'status',
         'remarks',
-        'email_sent'
+        'email_sent',
+        'endorser',
+        'endorser_id',
+        'drivers_license',
+        'own_vehicle',
+        'deed_of_sale',
     ];
 
     public function verified() {

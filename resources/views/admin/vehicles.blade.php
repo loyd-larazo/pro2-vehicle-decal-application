@@ -291,6 +291,9 @@
               <option value="PMSg">PMSg</option>
               <option value="PSSg">PSSg</option>
               <option value="PCpl">PCpl</option>
+              <option value="Patrolman">Patrolman</option>
+              <option value="NUP">NUP</option>
+              <option value="CIV">CIV</option>
             </select>
             <label for="rank">Rank</label>
           </div>

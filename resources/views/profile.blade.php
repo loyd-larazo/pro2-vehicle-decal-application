@@ -92,6 +92,9 @@
             <option {{ isset($user) && $user->rank == 'PMSg' ? 'selected' : '' }} value="PMSg">PMSg</option>
             <option {{ isset($user) && $user->rank == 'PSSg' ? 'selected' : '' }} value="PSSg">PSSg</option>
             <option {{ isset($user) && $user->rank == 'PCpl' ? 'selected' : '' }} value="PCpl">PCpl</option>
+            <option {{ isset($user) && $user->rank == 'Patrolman' ? 'selected' : '' }} value="Patrolman">Patrolman</option>
+            <option {{ isset($user) && $user->rank == 'NUP' ? 'selected' : '' }} value="NUP">NUP</option>
+            <option {{ isset($user) && $user->rank == 'CIV' ? 'selected' : '' }} value="CIV">CIV</option>
           </select>
           <label for="rank">Rank</label>
         </div>

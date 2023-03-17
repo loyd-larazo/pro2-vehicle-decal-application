@@ -31,6 +31,11 @@ class User extends Authenticatable
         'mobile',
         'telephone',
         'pnp_id_picture',
+        'endorser',
+        'endorser_id',
+        'drivers_license',
+        'own_vehicle',
+        'deed_of_sale',
         'status'
     ];
 

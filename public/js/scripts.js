@@ -164,3 +164,33 @@ function secureMobile() {
     } 
   });
 }
+
+function rankChange() {
+  $('#rank').change(function() {
+    if ($(this).val() == 'CIV') {
+      $('#civFields').removeClass('d-none');
+    } else {
+      $('#civFields').addClass('d-none');
+    }
+  });
+}
+
+function officeChange() {
+  $('#office').change(function() {
+    if ($(this).val() == 'others') {
+      $('#officeFields').removeClass('d-none');
+    } else {
+      $('#officeFields').addClass('d-none');
+    }
+  });
+}
+
+function ownVehicleChange() {
+  $('#ownVehicle').change(function() {
+    if ($(this).val() == 'no') {
+      $('#deedOfSaleField').removeClass('d-none');
+    } else {
+      $('#deedOfSaleField').addClass('d-none');
+    }
+  });
+}
