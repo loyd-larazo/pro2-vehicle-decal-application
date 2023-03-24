@@ -47,6 +47,7 @@ class UserController extends Controller
     $page = $request->get('page') ?? 1;
     $from = $request->get('from');
     $to = $request->get('to');
+    $status = $request->get('statusFilter') ? $request->get('statusFilter') : 'active';
 
     Paginator::currentPageResolver(function() use ($page) {
       return $page;
@@ -70,7 +71,9 @@ class UserController extends Controller
                   $query->whereDate('created_at', '>=', $from)
                         ->whereDate('created_at', '<=', $to);
                 })
+                ->where('status', $status == 'active' ? 1 : 0)
                 ->orderBy('updated_at', 'desc')
+                ->with(['vehicles.photos'])
                 ->paginate(20);
 
     return view('admin.users', [
@@ -80,6 +83,7 @@ class UserController extends Controller
       'users' => $users,
       'from' => $from,
       'to' => $to,
+      'status' => $status,
     ]);
   }
 
@@ -97,8 +101,26 @@ class UserController extends Controller
     $address = $request->get('address');
     $designation = $request->get('designation');
     $office = $request->get('office');
+    $otherOffice = $request->get('otherOffice');
     $mobile = $request->get('mobile');
     $telephone = $request->get('telephone');
+    $status = $request->get('status');
+    $endorser = $request->get('endorser');
+    $pnpIdPath = $request->get('pnpIdPath') ? $request->get('pnpIdPath') : '';
+    $driverLicensePath = $request->get('driverLicensePath') ? $request->get('driverLicensePath') : '';
+    $endorserIdPath = $request->get('endorserIdPath') ? $request->get('endorserIdPath') : '';
+
+    if ($request->file('pnp_id')) {
+      $pnpIdPath = $request->file('pnp_id')->store('applications', 'public');
+    }
+
+    if ($request->file('driver_license')) {
+      $driverLicensePath = $request->file('driver_license')->store('applications', 'public');
+    }
+
+    if ($request->file('endorser_id')) {
+      $endorserIdPath = $request->file('endorser_id')->store('applications', 'public');
+    }
 
     $user = null;
     if ($id) {
@@ -110,9 +132,15 @@ class UserController extends Controller
       $user->rank = $rank;
       $user->address = $address;
       $user->designation = $designation;
-      $user->office = $office;
+      $user->other_office = $otherOffice && $office == 'others' ? 1 : 0;
+      $user->office = $otherOffice && $office == 'others' ? $otherOffice : $office;
       $user->mobile = $mobile;
       $user->telephone = $telephone;
+      $user->status = $status;
+      $user->pnp_id_picture = $pnpIdPath;
+      $user->drivers_license = $driverLicensePath;
+      $user->endorser_id = $endorserIdPath;
+      $user->endorser = $endorser;
 
       if ($change_password == 'on') {
         $user->password = app('hash')->make($password);
@@ -131,9 +159,14 @@ class UserController extends Controller
         'rank' => $rank,
         'address' => $address,
         'designation' => $designation,
-        'office' => $office,
+        'other_office' => $otherOffice && $office == 'others' ? 1 : 0,
+        'office' => $otherOffice && $office == 'others' ? $otherOffice : $office,
         'mobile' => $mobile,
         'telephone' => $telephone,
+        'pnp_id_picture' => $pnpIdPath,
+        'drivers_license' => $driverLicensePath,
+        'endorser_id' => $endorserIdPath,
+        'endorser' => $endorser,
       ]);
     }
 

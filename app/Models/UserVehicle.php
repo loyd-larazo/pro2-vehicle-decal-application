@@ -10,6 +10,7 @@ class UserVehicle extends Model
     use HasFactory;
 
     protected $fillable = [
+        'applicant_id',
         'user_id',
         'make',
         'plate_number',
@@ -30,6 +31,8 @@ class UserVehicle extends Model
         'issued_date',
         'issued_status',
         'expiration_date',
+        'own_vehicle',
+        'deed_of_sale',
     ];
 
     public function photos() {

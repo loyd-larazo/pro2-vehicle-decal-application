@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
       'rank' => 'PGEN',
       'address' => 'PRO2 Office',
       'designation' => 'Admin',
-      'office' => 'PRO2 Office',
+      'office' => 'IPPO',
       'mobile' => '09227342934',
     ]);
 

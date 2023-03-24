@@ -18,6 +18,8 @@
 
       <script>
         $(function() {
+          let applicant = @json($applicant ?? null);
+
           secureMobile();
 
           function loadImage(file, type, target) {
@@ -37,17 +39,22 @@
             e.preventDefault();
             hideError();
 
-            var plateNum = $('#plateNumber').val();
-            $.get(`/vehicle/user/plate/${plateNum}`, (data, status) => {
-              console.log(data.data);
-              if (data.data) {
-                showError("Plate number already exists.");
-              } else {
-                $(this).unbind('submit').submit();
-              }
-            });
+            if ($('#ownVehicle').val() == 'no' && (!applicant && !$('#deedOfSale').val())) {
+              return showError("Please enter all required fields!");
+            }
 
-            $(this).unbind('submit').submit();
+            var plateNum = $('#plateNumber').val();
+            if (!applicant || (applicant && applicant.vehicle.plate_number != plateNum)) {
+              $.get(`/vehicle/user/plate/${plateNum}`, (data, status) => {
+                if (data.data) {
+                  showError("Plate number already exists.");
+                } else {
+                  $(this).unbind('submit').submit();
+                }
+              });
+            } else {
+              $(this).unbind('submit').submit();
+            }
           });
 
           $('#pnpId').change(function() {
@@ -87,14 +94,20 @@
           officeChange();
           ownVehicleChange();
 
+          $('#backToStep1').click(function() {
+            $('#applicantInfo').removeClass('d-none');
+            $('#vehicleInfo').addClass('d-none');
+          });
+
           $('#nextInfo').click(function() {
             hideError();
             if ( $('#inputFirstName').val() == '' || $('#inputLastName').val() == '' ||  $('#inputEmail').val() == '' ||  $('#confirmInputEmail').val() == '' || 
               $('#inputPassword').val() == '' || $('#rank').val() == '' || $('#address').val() == '' || $('#designation').val() == '' || $('#office').val() == '' || 
-              $('#mobile').val() == '' ||  $('#pnpId').val() == '') {
+              $('#mobile').val() == '' || (!applicant && $('#pnpId').val() == '')) {
               return showError("Please enter all required fields!");
             } else {
-              if ($('#rank').val() == 'CIV' && ($('#endorser').val() == '' || $('#endorserId').val() == '' || $('#driverLicense').val() == '')) {
+
+              if ($('#rank').val() == 'CIV' && (!applicant && ($('#endorser').val() == '' || $('#endorserId').val() == '' || $('#driverLicense').val() == ''))) {
                 return showError("Please enter all required fields!");
               }
 
@@ -125,10 +138,11 @@
 
               // next step
               $('#applicantInfo').addClass('d-none');
-              $('#vehicleInfo').removeClass('d-none')
+              $('#vehicleInfo').removeClass('d-none');
+              window.scrollTo(0, 0);
             }
           });
-        })
+        });
       </script>
   </head>
   <body class="bg-primary">
@@ -174,9 +188,14 @@
                       @if(isset($applicant))
                         <input type="hidden" name="id" value="{{ $applicant->id }}" />
                         <input type="hidden" name="pnpIdPath" value="{{ $applicant->pnp_id_picture }}" />
+                        <input type="hidden" name="deedOfSalePath" value="{{ $applicant->vehicle->deed_of_sale }}" />
+                        <input type="hidden" name="driverLicensePath" value="{{ $applicant->drivers_license }}" />
+                        <input type="hidden" name="endorserIdPath" value="{{ $applicant->endorser_id }}" />
+                        <input type="hidden" name="orPath" value="{{ $applicant->vehicle->or }}" />
+                        <input type="hidden" name="crPath" value="{{ $applicant->vehicle->cr }}" />
                       @endif
 
-                      <div id="applicantInfo" class="d-none">
+                      <div id="applicantInfo">
                         <div class="row mb-3">
                           <h3>Step 1: Applicant Information</h3>
                         </div>
@@ -258,14 +277,24 @@
                             <label for="endorser"><span class="text-danger">*</span>Name of Endorser</label>
                           </div>
 
-                          <div class="form-floating mb-3">
-                            <input class="form-control file" id="endorserId" type="file" data-target="src" data-preview="#deedOfSalePreview" name="endorser_id" accept="image/*" placeholder="Upload your Endorser ID" />
-                            <label for="endorserId"><span class="text-danger">*</span>Endorser ID</label>
+                          <div>
+                            <div class="form-floating mb-3">
+                              <input class="form-control file" id="endorserId" data-target="src" data-preview="#endorserIdPreview" type="file" name="endorser_id" accept="image/*" placeholder="Upload your Endorser ID" value="{{ isset($applicant) ? '/storage/'.$applicant->endorser_id : '' }}"/>
+                              <label for="endorserId"><span class="text-danger">*</span>Endorser ID</label>
+                            </div>
+                            <div class="form-floating mb-3 text-center">
+                              <img id="endorserIdPreview" class="preview-images prev-image" src="{{ isset($applicant) ? '/storage/'.$applicant->endorser_id : '' }}"/>
+                            </div>
                           </div>
 
-                          <div class="form-floating mb-3">
-                            <input class="form-control file" id="driverLicense" type="file" data-target="src" data-preview="#deedOfSalePreview" name="driver_license" accept="image/*" placeholder="Upload your Drivers License" />
-                            <label for="driverLicense"><span class="text-danger">*</span>Driver's License ID</label>
+                          <div>
+                            <div class="form-floating mb-3">
+                              <input class="form-control file" id="driverLicense" data-target="src" data-preview="#driverLicensePreview" type="file" name="driver_license" accept="image/*" placeholder="Upload your Drivers License" />
+                              <label for="driverLicense"><span class="text-danger">*</span>Driver's License ID</label>
+                            </div>
+                            <div class="form-floating mb-3 text-center">
+                              <img id="driverLicensePreview" class="preview-images prev-image" src="{{ isset($applicant) ? '/storage/'.$applicant->drivers_license : '' }}"/>
+                            </div>
                           </div>
                         </div>
 
@@ -296,13 +325,13 @@
                             <option {{ isset($applicant) && $applicant->office == 'RLDDD' ? 'selected' : '' }} value="RLDDD">RLDDD</option>
                             <option {{ isset($applicant) && $applicant->office == 'RPSMU' ? 'selected' : '' }} value="RPSMU">RPSMU</option>
                             <option {{ isset($applicant) && $applicant->office == 'RICTMD' ? 'selected' : '' }} value="RICTMD">RICTMD</option>
-                            <option {{ isset($applicant) && $applicant->office == 'others' ? 'selected' : '' }} value="others">Others</option>
+                            <option {{ isset($applicant) && $applicant->other_office ? 'selected' : '' }} value="others">Others</option>
                           </select>
                           <label for="office"><span class="text-danger">*</span>Office/Unit Assignment</label>
                         </div>
-                        <div id="officeFields" class="{{(isset($applicant) && $applicant->office == 'others') ? '' : 'd-none'}}">
+                        <div id="officeFields" class="{{(isset($applicant) && $applicant->other_office) ? '' : 'd-none'}}">
                           <div class="form-floating mb-3">
-                            <input class="form-control" id="otherOffice" type="text" name="otherOffice" placeholder="Other Office/Unit Assignment" value="{{ isset($applicant) ? $applicant->other_office : '' }}" />
+                            <input class="form-control" id="otherOffice" type="text" name="otherOffice" placeholder="Other Office/Unit Assignment" value="{{ isset($applicant) ? $applicant->office : '' }}" />
                             <label for="otherOffice"><span class="text-danger">*</span>Other Office/Unit Assignment</label>
                           </div>
                         </div>
@@ -351,9 +380,16 @@
                         </div>
                       </div>
 
-                      <div id="vehicleInfo" >
+                      <div id="vehicleInfo" class="d-none">
                         <div class="row mb-3">
-                          <h3>Step 2: Vehicle Information</h3>
+                          <div class="col">
+                            <h3>Step 2: Vehicle Information</h3>
+                          </div>
+                          <div class="col-auto">
+                            <button class="btn btn-primary" id="backToStep1">
+                              <i class="fa-solid fa-arrow-left-long"></i> back to Step 1
+                            </button>
+                          </div>
                         </div>
 
                         <div class="row mb-3">
@@ -361,29 +397,29 @@
                             <div class="form-floating">
                               <select class="form-control" id="type" name="type" required>
                                 <option value="">Select vehicle type</option>
-                                <option value="motor">Motor</option>
-                                <option value="car">Car</option>
+                                <option {{ isset($applicant) && $applicant->vehicle->type == 'motor' ? 'selected' : '' }} value="motor">Motor</option>
+                                <option {{ isset($applicant) && $applicant->vehicle->type == 'car' ? 'selected' : '' }} value="car">Car</option>
                               </select>
                               <label for="type"><span class="text-danger">*</span>Vehicle Type</label>
                             </div>
                           </div>
                           <div class="col-md-6">
                             <div class="form-floating mb-3 mb-md-0">
-                              <input class="form-control" id="plateNumber" type="text" name="plate_number" placeholder="Enter your plate number" required />
+                              <input class="form-control" id="plateNumber" type="text" name="plate_number" placeholder="Enter your plate number" required value="{{ isset($applicant) ? $applicant->vehicle->plate_number : '' }}" />
                               <label for="plateNumber"><span class="text-danger">*</span>Plate Number</label>
                             </div>
                           </div>
                         </div>
               
                         <div class="form-floating mb-3">
-                          <input class="form-control" id="make" type="text" name="make" placeholder="Enter Make" required />
+                          <input class="form-control" id="make" type="text" name="make" placeholder="Enter Make" required value="{{ isset($applicant) ? $applicant->vehicle->make : '' }}" />
                           <label for="make"><span class="text-danger">*</span>Make</label>
                         </div>
               
                         <div class="row mb-3">
                           <div class="col-md-6">
                             <div class="form-floating mb-3 mb-md-0">
-                              <input class="form-control" id="model" type="text" name="model" placeholder="Enter Series" required />
+                              <input class="form-control" id="model" type="text" name="model" placeholder="Enter Series" required value="{{ isset($applicant) ? $applicant->vehicle->model : '' }}" />
                               <label for="model"><span class="text-danger">*</span>Series</label>
                             </div>
                           </div>
@@ -392,7 +428,7 @@
                               <select class="form-control" id="yearModel" name="year_model" required>
                                 <option value="">Select Year Model</option>
                                 @for ($i = date("Y"); $i >= 1850; $i--)
-                                  <option value="{{ $i }}">{{ $i }}</option>
+                                  <option {{ isset($applicant) && $applicant->vehicle->year_model == $i ? 'selected' : '' }} value="{{ $i }}">{{ $i }}</option>
                                 @endfor
                               </select>
                               <label for="yearModel"><span class="text-danger">*</span>Year Model</label>
@@ -401,20 +437,20 @@
                         </div>
               
                         <div class="form-floating mb-3">
-                          <input class="form-control" id="color" type="text" name="color" placeholder="Enter Color" required />
+                          <input class="form-control" id="color" type="text" name="color" placeholder="Enter Color" required value="{{ isset($applicant) ? $applicant->vehicle->color : '' }}" />
                           <label for="color"><span class="text-danger">*</span>Color</label>
                         </div>
               
                         <div class="row mb-3">
                           <div class="col-md-6">
                             <div class="form-floating mb-3 mb-md-0">
-                              <input class="form-control" id="engineNumber" type="text" name="engine_number" placeholder="Enter Engine Number" required />
+                              <input class="form-control" id="engineNumber" type="text" name="engine_number" placeholder="Enter Engine Number" required value="{{ isset($applicant) ? $applicant->vehicle->engine_number : '' }}" />
                               <label for="engineNumber"><span class="text-danger">*</span>Engine Number</label>
                             </div>
                           </div>
                           <div class="col-md-6">
                             <div class="form-floating mb-3 mb-md-0">
-                              <input class="form-control" id="chassisNumber" type="text" name="chassis_number" placeholder="Enter Chassis Number" required />
+                              <input class="form-control" id="chassisNumber" type="text" name="chassis_number" placeholder="Enter Chassis Number" required value="{{ isset($applicant) ? $applicant->vehicle->chassis_number : '' }}" />
                               <label for="chassisNumber"><span class="text-danger">*</span>Chassis Number</label>
                             </div>
                           </div>
@@ -423,49 +459,53 @@
                         <div class="form-floating mb-3">
                           <select class="form-control" id="ownVehicle" name="own_vehicle" required>
                             <option value="">Select from options</option>
-                            <option value="yes">Yes</option>
-                            <option value="no">No</option>
+                            <option {{ isset($applicant) && $applicant->vehicle->own_vehicle == 1 ? 'selected' : '' }} value="yes">Yes</option>
+                            <option {{ isset($applicant) && $applicant->vehicle->own_vehicle == 0 ? 'selected' : '' }} value="no">No</option>
                           </select>
                           <label for="ownVehicle"><span class="text-danger">*</span>Do you own the vehicle?</label>
                         </div>
 
-                        <div id="deedOfSaleField" class="d-none">
+                        <div id="deedOfSaleField" class="{{ isset($applicant) && $applicant->vehicle->own_vehicle == 1 ? 'd-none' : '' }}">
                           <div class="form-floating mb-3">
                             <input class="form-control file" id="deedOfSale" data-target="src" data-preview="#deedOfSalePreview" type="file" name="deed_of_sale" accept="image/*" placeholder="Deed of Sale" />
                             <label for="deedOfSale"><span class="text-danger">*</span>Deed of Sale</label>
                           </div>
                           <div class="form-floating mb-3 text-center">
-                            <img id="deedOfSalePreview" class="preview-images prev-image"/>
+                            <img id="deedOfSalePreview" class="preview-images prev-image" src="{{ isset($applicant) ? '/storage/'.$applicant->vehicle->deed_of_sale : '' }}"/>
                           </div>
                         </div>
                         
                         <div>
                           <div id="orFile" class="form-floating mb-3">
-                            <input class="form-control file" required id="or" data-target="src" data-preview="#orPreview" type="file" name="or" accept="image/*" placeholder="Upload your OR" />
+                            <input class="form-control file" {{ isset($applicant) ? '' : 'required' }} id="or" data-target="src" data-preview="#orPreview" type="file" name="or" accept="image/*" placeholder="Upload your OR" />
                             <label for="or"><span class="text-danger">*</span>OR</label>
                           </div>
                           <div class="form-floating mb-3 text-center">
-                            <img id="orPreview" class="preview-images prev-image"/>
+                            <img id="orPreview" class="preview-images prev-image" src="{{ isset($applicant) ? '/storage/'.$applicant->vehicle->or : '' }}"/>
                           </div>
                         </div>
 
                         <div>
                           <div id="crFile" class="form-floating mb-3">
-                            <input class="form-control file" required id="cr" data-target="src" data-preview="#crPreview" type="file" name="cr" accept="image/*" placeholder="Upload your CR" />
+                            <input class="form-control file" {{ isset($applicant) ? '' : 'required' }} id="cr" data-target="src" data-preview="#crPreview" type="file" name="cr" accept="image/*" placeholder="Upload your CR" />
                             <label for="cr"><span class="text-danger">*</span>CR</label>
                           </div>
                           <div class="form-floating mb-3 text-center">
-                            <img id="crPreview" class="preview-images prev-image"/>
+                            <img id="crPreview" class="preview-images prev-image" src="{{ isset($applicant) ? '/storage/'.$applicant->vehicle->cr : '' }}"/>
                           </div>
                         </div>
                         
                         <div>
                           <div id="photosFile" class="form-floating mb-3">
-                            <input class="form-control file" required id="photos" data-target="src" data-preview="#vehiclePhotos" type="file" name="photos[]" accept="image/*" placeholder="Upload photo of your vehicle" multiple/>
-                            <label for="photos"><span class="text-danger">*</span>Photo of Vehicle</label>
+                            <input class="form-control file" {{ isset($applicant) ? '' : 'required' }} id="photos" data-target="element" data-preview="#vehiclePhotos" type="file" name="photos[]" accept="image/*" placeholder="Upload photo of your vehicle" multiple/>
+                            <label for="photos"><span class="text-danger">*</span>Photos of Vehicle</label>
                           </div>
-                          <div class="form-floating mb-3 text-center photos-preview">
-                            <img id="vehiclePhotos" class="preview-images prev-image"/>
+                          <div class="form-floating mb-3 text-center photos-preview" id="vehiclePhotos">
+                            @if (isset($applicant))
+                              @foreach ($applicant->vehicle->photos as $photo)
+                                <img class="preview-images prev-image" src="{{ '/storage/'.$photo->image }}"/>
+                              @endforeach
+                            @endif
                           </div>
                         </div>
 

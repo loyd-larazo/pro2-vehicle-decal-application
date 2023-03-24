@@ -27,6 +27,7 @@ class User extends Authenticatable
         'rank',
         'address',
         'designation',
+        'other_office',
         'office',
         'mobile',
         'telephone',
@@ -34,8 +35,6 @@ class User extends Authenticatable
         'endorser',
         'endorser_id',
         'drivers_license',
-        'own_vehicle',
-        'deed_of_sale',
         'status'
     ];
 

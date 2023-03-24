@@ -18,27 +18,43 @@ class VehicleController extends Controller
     $from = $request->get('from');
     $to = $request->get('to');
     $page = $request->get('page') ?? 1;
-    $status = $request->get('status') ?? 'pending';
+    $status = $request->get('status') ?? 'all';
 
     Paginator::currentPageResolver(function() use ($page) {
       return $page;
     });
 
-    $userVehicles = UserVehicle::where('verified_status', $status)
+    $userVehicles = UserVehicle::when($status != 'all', function($query) use ($status) {
+                                  $query->where('verified_status', $status);
+                                })
+                                ->with(['photos', 'user'])
                                 ->where(function($query) use ($search) {
                                   $query->where('make', 'like', "%$search%")
+                                        ->orWhere('type', 'like', "%$search%")
                                         ->orWhere('plate_number', 'like', "%$search%")
                                         ->orWhere('model', 'like', "%$search%")
                                         ->orWhere('year_model', 'like', "%$search%")
                                         ->orWhere('color', 'like', "%$search%")
                                         ->orWhere('engine_number', 'like', "%$search%")
-                                        ->orWhere('chassis_number', 'like', "%$search%");
+                                        ->orWhere('chassis_number', 'like', "%$search%")
+                                        ->orWhereHas('user', function($query) use ($search) {
+                                          $query->where('email', 'like', "%$search%")
+                                                ->orWhere('firstname', 'like', "%$search%")
+                                                ->orWhere('lastname', 'like', "%$search%")
+                                                ->orWhere('middlename', 'like', "%$search%")
+                                                ->orWhere('rank', 'like', "%$search%")
+                                                ->orWhere('address', 'like', "%$search%")
+                                                ->orWhere('designation', 'like', "%$search%")
+                                                ->orWhere('office', 'like', "%$search%")
+                                                ->orWhere('mobile', 'like', "%$search%")
+                                                ->orWhere('telephone', 'like', "%$search%");
+                                        });
                                 })
                                 ->when($from && $to, function($query) use ($from, $to) {
                                   $query->whereDate('created_at', '>=', $from)
                                         ->whereDate('created_at', '<=', $to);
                                 })
-                                ->with(['photos', 'user'])
+                                ->whereNotNull('user_id')
                                 ->paginate(20);
     return view('admin.vehicles', [
       'vehicles' => $userVehicles,
@@ -53,7 +69,7 @@ class VehicleController extends Controller
   public function updateVehicle(Request $request, $id, $status) {
     $user = $request->get('user');
 
-    $userVehicle = UserVehicle::find($id);
+    $userVehicle = UserVehicle::where('id', $id)->with(['user'])->first();
     if ($userVehicle) {
       $today = Carbon::now();
       $userVehicle->verified_by = $user->id;
@@ -73,10 +89,12 @@ class VehicleController extends Controller
         $lastCode = $settingModel->value;
       }
       
-      $generatedCode = $this->getNextCode($lastCode);
-      $code = $codePrefix . $generatedCode;
+      $generatedCode = getNextCode($lastCode);
+      $name = $userVehicle->user->firstname . ' ' . $userVehicle->user->middlename . ' ' . $userVehicle->user->lastname;
+      $code =  $codePrefix . $generatedCode;
       $userVehicle->code = $code;
-      $userVehicle->qr_code = QrCode::size(300)->generate($code);
+      $qrData = $name . " - " . $userVehicle->type . " - " . $userVehicle->plate_number . " - " . $userVehicle->make . " - " . $userVehicle->model . " - " . $userVehicle->year_model . " - " . $code;
+      $userVehicle->qr_code = QrCode::size(300)->generate($qrData);
 
       $settingModel->value = $generatedCode;
       $settingModel->save();
@@ -88,74 +106,58 @@ class VehicleController extends Controller
     return redirect('/vehicles')->with('success', $msg);
   }
 
-  private function getNextCode($code) {
-    $charSet = ["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
-    $charSetLen = count($charSet);
-
-    if (!$code) {
-      return "00000";
-    }
-
-    $newCode = "";
-    $increaseNext = false;
-    for ($i = (strlen($code) - 1); $i >= 0; $i--) {
-      // last char
-      if (($i + 1) == strlen($code)) {
-        $char = $code[$i];
-        $charIndex = array_search($char, $charSet);
-        if (($charIndex + 1) == $charSetLen) {
-          // reset to first and increase next
-          $increaseNext = true;
-          $newCode = $charSet[0] . $newCode;
-        } else {
-          $increaseNext = false;
-          $newCode = $charSet[$charIndex + 1] . $newCode;
-        }
-      } else {
-        $nextIndex = array_search($code[$i], $charSet);
-        if ($increaseNext) {
-          $nextIndex = $nextIndex + 1;
-          if ($nextIndex == $charSetLen) {
-            $nextIndex = 0;
-            $increaseNext = true;
-          } else {
-            $increaseNext = false;
-          }
-        }
-
-        $newCode = $charSet[$nextIndex] . $newCode;
-      }
-    }
-
-    return $newCode;
-  }
-
   public function release(Request $request) {
     $search = $request->get('search');
+    $page = $request->get('page') ?? 1;
+    $from = $request->get('from');
+    $to = $request->get('to');
+    $status = $request->get('status') ?? 'all';
     $page = $request->get('page') ?? 1;
 
     Paginator::currentPageResolver(function() use ($page) {
       return $page;
     });
 
-    $userVehicles = UserVehicle::whereIn('issued_status', ['pending', 'renewal'])
+    $userVehicles = UserVehicle::when($status != 'all', function($query) use ($status) {
+                                  if ($status == 'pending') {
+                                    $query->whereIn('issued_status', ['pending', 'renewal']);
+                                  } else {
+                                    $query->where('issued_status', $status);
+                                  }
+                                })
                                 ->where('verified_status', 'approved')
+                                ->with(['photos', 'user'])
                                 ->whereNotNull('code')
                                 ->where(function($query) use ($search) {
                                   $query->where('make', 'like', "%$search%")
+                                        ->orWhere('type', 'like', "%$search%")
                                         ->orWhere('plate_number', 'like', "%$search%")
                                         ->orWhere('model', 'like', "%$search%")
                                         ->orWhere('year_model', 'like', "%$search%")
                                         ->orWhere('color', 'like', "%$search%")
                                         ->orWhere('engine_number', 'like', "%$search%")
-                                        ->orWhere('chassis_number', 'like', "%$search%");
+                                        ->orWhere('chassis_number', 'like', "%$search%")
+                                        ->orWhereHas('user', function($query) use ($search) {
+                                          $query->where('email', 'like', "%$search%")
+                                                ->orWhere('firstname', 'like', "%$search%")
+                                                ->orWhere('lastname', 'like', "%$search%")
+                                                ->orWhere('middlename', 'like', "%$search%")
+                                                ->orWhere('rank', 'like', "%$search%")
+                                                ->orWhere('address', 'like', "%$search%")
+                                                ->orWhere('designation', 'like', "%$search%")
+                                                ->orWhere('office', 'like', "%$search%")
+                                                ->orWhere('mobile', 'like', "%$search%")
+                                                ->orWhere('telephone', 'like', "%$search%");
+                                        });
                                 })
-                                ->with(['photos', 'user'])
                                 ->paginate(20);
     return view('admin.release', [
       'vehicles' => $userVehicles,
       'search' => $search,
       'page' => $page,
+      'from' => $from,
+      'to' => $to,
+      'status' => $status,
     ]);
   }
 

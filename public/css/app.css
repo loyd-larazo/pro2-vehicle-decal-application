@@ -74,6 +74,11 @@ input[type=number] {
   height: 100px;
 }
 
+.img-preview {
+  max-width: 100%;
+  height: 100px;
+}
+
 thead {
   background: #22216d;
   color: #fff;
@@ -97,6 +102,10 @@ thead {
 }
 
 /* Report CSS */
+.logo-report-heading {
+  height: 120px;
+}
+
 .pnp-report {
   height: 200px;
 }
@@ -107,4 +116,26 @@ thead {
 
 #previewImageBody {
   width: 100%;
+}
+
+.nav-item {
+  cursor: pointer;
+}
+
+.stats {
+  font-weight: bold;
+}
+
+.stats-score {
+  font-size: 20px;
+}
+
+.icon {
+  font-size: 50px;
+}
+
+.dashboard-print {
+  position: absolute;
+  width: 50px;
+  right: 30px;
 }

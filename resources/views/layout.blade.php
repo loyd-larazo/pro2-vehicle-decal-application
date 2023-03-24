@@ -54,7 +54,7 @@
             <div class="nav">
               @if (Session::get('userType') && in_array(Session::get('userType'), ["issuer", "admin"]))
                 <div class="sb-sidenav-menu-heading">Approval</div>
-                @if (Session::get('userType') && in_array(Session::get('userType'), ["admin"]))
+                @if (Session::get('userType') && in_array(Session::get('userType'), ["admin", "issuer"]))
                   <a class="nav-link {{ in_array(request()->route()->getName(), ['applicants'])  ? 'active' : '' }}" href="/applicants">
                     <div class="sb-nav-link-icon"><i class="fa-solid fa-users-rectangle"></i></div>
                     <span class="position-relative">
@@ -93,7 +93,7 @@
                 </a>
               @endif
 
-              @if (Session::get('userType') && in_array(Session::get('userType'), ["admin"]))
+              @if (Session::get('userType') && in_array(Session::get('userType'), ["admin", "issuer"]))
                 <div class="sb-sidenav-menu-heading">App Users</div>
                 <a class="nav-link {{ isset($userType) && $userType == 'users' ? 'active' : '' }}" href="/app/users">
                   <div class="sb-nav-link-icon"><i class="fa-solid fa-users-line"></i></div>
@@ -101,11 +101,11 @@
                 </a>
                 <a class="nav-link {{ isset($userType) && $userType == 'issuers' ? 'active' : '' }}" href="/app/issuers">
                   <div class="sb-nav-link-icon"><i class="fa-solid fa-user-group"></i></div>
-                  Issuers
+                  Admin
                 </a>
                 <a class="nav-link {{ isset($userType) && $userType == 'admins' ? 'active' : '' }}" href="/app/admins">
                   <div class="sb-nav-link-icon"><i class="fa-solid fa-user-tie"></i></div>
-                  Admins
+                  Superadmin
                 </a>
               @endif
 

@@ -22,6 +22,19 @@
       @endif
 
       <form class="row mb-2" action="/release" method="GET">
+        <div class="col-auto mt-2">
+          <div class="input-group">
+            <select class="form-select" onchange="this.form.submit()" id="status" name="status">
+              <option value="all" {{ $status && $status == 'all' ? 'selected' : '' }}>All</option>
+              <option value="pending" {{ $status && $status == 'pending' ? 'selected' : '' }}>Pending</option>
+              <option value="issued" {{ $status && $status == 'issued' ? 'selected' : '' }}>Issued</option>
+              <option value="expired" {{ $status && $status == 'expired' ? 'selected' : '' }}>Expired</option>
+            </select>
+            <div class="form-outline pt-1 ms-2">
+              Status
+            </div>
+          </div>
+        </div>
         <div class="col"></div>
         <div class="col-auto mt-2">
           <div class="input-group">
@@ -63,7 +76,11 @@
                   <td>
                     <button class="btn btn-sm btn-primary viewVehicle" data-type="vehicle" data-json="{{ json_encode($vehicle) }}" data-bs-toggle="modal" data-bs-target="#viewVehicleModal">Vehicle</button>
                     <button class="btn btn-sm btn-primary viewVehicle" data-type="user" data-json="{{ json_encode($vehicle) }}" data-bs-toggle="modal" data-bs-target="#viewUserModal">User</button>
-                    <button class="btn btn-sm btn-success verify" data-id="{{ $vehicle->id }}" data-type="{{ $vehicle->issued_status == 'renewal' ? 'renew' : 'release' }}" data-bs-toggle="modal" data-bs-target="#verifyModal">{{ $vehicle->issued_status == 'renewal' ? 'Renew' : 'Release'}}</button>
+                    @if (Session::get('userType') && in_array(Session::get('userType'), ["admin"]))
+                      @if ($vehicle->issued_status == 'pending' || $vehicle->issued_status == 'renewal')
+                        <button class="btn btn-sm btn-success verify" data-id="{{ $vehicle->id }}" data-type="{{ $vehicle->issued_status == 'renewal' ? 'renew' : 'release' }}" data-bs-toggle="modal" data-bs-target="#verifyModal">{{ $vehicle->issued_status == 'renewal' ? 'Renew' : 'Release'}}</button>
+                      @endif
+                    @endif
                   </td>
                 </tr>
               @endforeach
@@ -91,6 +108,9 @@
                     </div>
                     <div class="col-auto">
                       <label class="col-form-label">of {{ $vehicles->lastPage() }}</label>
+                    </div>
+                    <div class="col p-0 text-end">
+                      <a href="/report/release/?search={{$search}}&status={{$status}}&from={{$from}}&to={{$to}}" target="_blank" class="btn btn-info mt-2"> <i class="fa-solid fa-print me-2"></i>Print List</a>
                     </div>
                   </div>
                 </th>
@@ -174,16 +194,38 @@
               </div>
             </div>
           </div>
-          
-          <div>
-            <label id="orCrLabel">OR/CR</label>
+
+          <div class="form-floating mb-3">
+            <select class="form-control" id="ownVehicle" name="own_vehicle" disabled>
+              <option value="">Select from options</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+            <label for="ownVehicle">Do you own the vehicle?</label>
+          </div>
+
+          <div id="deedOfSaleField" class="d-none">
+            <label id="deedOfSaleLabel">Deed of Sale</label>
             <div class="form-floating mb-3 text-center">
-              <img id="orCrPreview" class="preview-images prev-image"/>
+              <img id="deedOfSalePreview" class="preview-images prev-image"/>
             </div>
           </div>
           
           <div>
-            <label id="photosLabel">Photo of Vehicle</label>
+            <label id="orCrLabel">OR</label>
+            <div class="form-floating mb-3 text-center">
+              <img id="orPreview" class="preview-images prev-image"/>
+            </div>
+          </div>
+          <div>
+            <label id="orCrLabel">CR</label>
+            <div class="form-floating mb-3 text-center">
+              <img id="crPreview" class="preview-images prev-image"/>
+            </div>
+          </div>
+          
+          <div>
+            <label id="photosLabel">Photos of Vehicle</label>
             <div class="form-floating mb-3 text-center photos-preview">
             </div>
           </div>
@@ -203,6 +245,7 @@
         </div>
 
         <div class="modal-footer">
+          <a id="printInfo" target="_blank" class="btn btn-info mt-2"> <i class="fa-solid fa-print me-2"></i>Print</a>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
@@ -263,6 +306,26 @@
             </select>
             <label for="rank">Rank</label>
           </div>
+          <div id="civFields" class="d-none">
+            <div class="form-floating mb-3">
+              <input disabled class="form-control" id="endorser" type="text" name="endorser" placeholder="Enter your Name of Endorser"/>
+              <label for="endorser">Name of Endorser</label>
+            </div>
+
+            <div>
+              <label for="endorserId">Endorser ID</label>
+              <div class="form-floating mb-3 text-center">
+                <img id="endorserIdPreview" class="preview-images prev-image" src="{{ isset($applicant) ? '/storage/'.$applicant->endorser_id : '' }}"/>
+              </div>
+            </div>
+
+            <div>
+              <label for="driverLicense">Driver's License ID</label>
+              <div class="form-floating mb-3 text-center">
+                <img id="driverLicensePreview" class="preview-images prev-image" />
+              </div>
+            </div>
+          </div>
           <div class="form-floating mb-3">
             <textarea disabled class="form-control" id="address" name="address"></textarea>
             <label for="address">Address</label>
@@ -312,6 +375,7 @@
           </div>
         </div>
         <div class="modal-footer">
+          <a id="printUser" target="_blank" class="btn btn-info mt-2"> <i class="fa-solid fa-print me-2"></i>Print</a>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
@@ -362,15 +426,22 @@
           $('input[name="make"]').val(data ? data.make : '');
           $('input[name="model"]').val(data ? data.model : '');
           $('select[name="year_model"]').val(data ? data.year_model : '');
+          $('select[name="own_vehicle"]').val(data ? (data.own_vehicle ? 'yes' : 'no') : '');
           $('input[name="color"]').val(data ? data.color : '');
           $('input[name="engine_number"]').val(data ? data.engine_number : '');
           $('input[name="chassis_number"]').val(data ? data.chassis_number : '');
 
-          var orCrPath = ''
-          if (data && data.or_cr) {
-            orCrPath = `/storage/${data.or_cr}`;
+          var orPath = ''
+          if (data && data.or) {
+            orPath = `/storage/${data.or}`;
           }
-          $('#orCrPreview').attr('src', orCrPath);
+          $('#orPreview').attr('src', orPath);
+
+          var crPath = ''
+          if (data && data.cr) {
+            crPath = `/storage/${data.cr}`;
+          }
+          $('#crPreview').attr('src', crPath);
 
           var photosStr = '';
           if (data && data.photos && data.photos.length) {
@@ -379,6 +450,18 @@
             });
           }
           $('.photos-preview').html(photosStr);
+
+          if (data) {
+            $('#printInfo').attr('href', `/report/vehicle/${data.id}`);
+          }
+
+          if (!data.own_vehicle) {
+            $('#deedOfSaleField').removeClass('d-none');
+            $('#deedOfSalePreview').attr('src', `/storage/${data.deed_of_sale}`);
+          } else {
+            $('#deedOfSaleField').addClass('d-none');
+          }
+
           initImagePreview();
         } else if (type == 'user') {
           $('input[name="firstname"]').val(data ? data.user.firstname : '');
@@ -391,8 +474,22 @@
           $('input[name="office"]').val(data ? data.user.office : '');
           $('input[name="mobile"]').val(data ? data.user.mobile : '');
           $('input[name="telephone"]').val(data ? data.user.telephone : '');
+
+          if (data.user.rank == 'CIV') {
+            $('#civFields').removeClass('d-none');
+            $('input[name="endorser"]').val(data ? data.user.endorser : '');
+            $('#endorserIdPreview').attr('src', `/storage/${data.user.endorser_id}`)
+            $('#driverLicensePreview').attr('src', `/storage/${data.user.drivers_license}`)
+          } else {
+            $('#civFields').addClass('d-none');
+          }
+
           if (data && data.user.pnp_id_picture) {
             $('#imgPreview').attr('src', `/storage/${data.user.pnp_id_picture}`)
+          }
+
+          if (data) {
+            $('#printUser').attr('href', `/report/user/${data.user.id}`);
           }
         }
       });
