@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Pagination\Paginator;
 
 use App\Models\User;
+use App\Models\Applicant;
+use App\Models\UserVehicle;
 
 class UserController extends Controller
 {
@@ -146,6 +148,10 @@ class UserController extends Controller
         $user->password = app('hash')->make($password);
       }
 
+      if ($status == 0) {
+        UserVehicle::where('user_id', $id)->update(['status' => 0]);
+      }
+
       $user->save();
     } else {
       $user = User::updateOrCreate([
@@ -173,5 +179,23 @@ class UserController extends Controller
     return redirect()->back()->with('success', ucfirst($user->type)." has been saved!"); 
   }
 
-  
+  public function validateEmail(Request $request, $email) {
+    $id = $request->get('id');
+
+    $user = User::where('email', $email)
+                ->when($id, function($query) use ($id) {
+                  $query->where('id', '!=', $id);
+                })
+                ->first();
+    if ($user) {
+      return response()->json(['data' => true]);
+    }
+
+    $applicant = Applicant::where('email', $email)->first();
+    if ($user) {
+      return response()->json(['data' => true]);
+    }
+
+    return response()->json(['data' => false]);
+  }
 }

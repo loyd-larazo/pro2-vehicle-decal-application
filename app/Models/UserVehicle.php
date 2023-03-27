@@ -31,6 +31,7 @@ class UserVehicle extends Model
         'issued_date',
         'issued_status',
         'expiration_date',
+        'status',
         'own_vehicle',
         'deed_of_sale',
     ];

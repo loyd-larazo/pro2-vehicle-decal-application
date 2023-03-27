@@ -197,6 +197,7 @@ class AppController extends Controller
     $engine_number = $request->get('engine_number');
     $chassis_number = $request->get('chassis_number');
     $own_vehicle = $request->get('own_vehicle') && $request->get('own_vehicle') == 'yes' ? 1 : 0;
+    $isActive = $request->get('isActive') && $request->get('isActive') == 'active' ? 1 : 0;
 
     $deedOfSalePath = $request->get('deedOfSalePath') ? $request->get('deedOfSalePath') : '';
     $orPath = $request->get('orPath') ? $request->get('orPath') : '';
@@ -229,6 +230,7 @@ class AppController extends Controller
       $userVehicle->or = $orPath;
       $userVehicle->cr = $crPath;
       $userVehicle->deed_of_sale = $deedOfSalePath;
+      $userVehicle->status = $isActive;
       $userVehicle->save();
     } else {
       $userVehicle = UserVehicle::updateOrCreate([

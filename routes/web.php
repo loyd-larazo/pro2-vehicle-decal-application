@@ -27,6 +27,7 @@ Route::get('/application', [ApplicantController::class, 'applicationPage']);
 Route::post('/application', [ApplicantController::class, 'application']);
 Route::get('/applicant/{id}', [ApplicantController::class, 'applicantChangePage']);
 Route::get('/vehicle/user/plate/{plate}', [VehicleController::class, 'validatePlatenumber']);
+Route::get('/user/email/{email}', [UserController::class, 'validateEmail']);
 
 Route::middleware([ValidateUser::class])->group(function () {
   Route::get('/', [AppController::class, 'dashboard']);

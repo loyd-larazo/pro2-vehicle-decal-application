@@ -186,8 +186,11 @@ class VehicleController extends Controller
   }
 
   public function validatePlatenumber(Request $request, $plateNumber) {
-
+    $id = $request->get('id');
     $userVehicle = UserVehicle::where('plate_number', $plateNumber)
+                              ->when($id, function($query) use ($id) {
+                                $query->where('id', '!=', $id);
+                              })
                               ->first();
                         
     return response()->json(['data' => $userVehicle ? true : false]);

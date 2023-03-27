@@ -143,6 +143,7 @@
                   <th>Series</th>
                   <th>Status</th>
                   <th>Decal Status</th>
+                  <th>Is Active</th>
                   <th></th>
                 </tr>
               </thead>
@@ -152,7 +153,7 @@
           </div>
           <form action="/profile/vehicles" method="POST" id="vehicleFormInput" class="d-none" enctype="multipart/form-data">
             <div>
-              <button id="backToVehicles" class="btn btn-sm btn-primary mb-2">
+              <button type="button" id="backToVehicles" class="btn btn-sm btn-primary mb-2">
                 <i class="fa-solid fa-arrow-left"></i> back
               </button>
             </div>
@@ -293,6 +294,15 @@
               </div>
             </div>
 
+            <div id="isActiveField" class="form-floating mb-3 d-none">
+              <select class="form-control" id="isActive" name="isActive">
+                <option value="">Select vehicle status</option>
+                <option value="active">Active</option>
+                <option value="disabled">Disabled</option>
+              </select>
+              <label for="isActive">Vehicle Status?</label>
+            </div>
+
             <div class="text-center">
               <button type="submit" class="btn btn-success d-none" id="saveVehicle">Save</button>
             </div>
@@ -321,7 +331,7 @@
           <input type="hidden" name="pnpIdPath"/>
           <input type="hidden" name="driverLicensePath"/>
           <input type="hidden" name="endorserIdPath"/>
-          <div id="jsError" class="alert alert-danger text-center d-none" role="alert"></div>
+          <div id="jsError2" class="alert alert-danger text-center d-none" role="alert"></div>
           <input type="hidden" name="id" id="userId" />
           <input type="hidden" name="type" value="{{ rtrim($userType, "s") }}" />
 
@@ -577,6 +587,7 @@
                 <td>${vehicle.model}</td>
                 <td class="text-capitalize">${vehicle.verified_status}</td>
                 <td class="text-capitalize">${vehicle.issued_status}</td>
+                <td class="text-capitalize">${vehicle.status ? 'Active' : 'Disabled'}</td>
                 <td>
                   <button class="btn btn-sm btn-primary veiw-edit-vehicle" data-action="view" data-json='${JSON.stringify(vehicle)}'>View</button>  
                   @if (Session::get('userType') && in_array(Session::get('userType'), ["admin"]))
@@ -616,12 +627,13 @@
         e.preventDefault();
         hideError();
 
-        if ($('#ownVehicle').val() == 'no' && !$('#deedOfSale').val()) {
+        if ($('#ownVehicle').val() == 'no' && (!$('input[name="deedOfSalePath"]').val() && !$('#deedOfSale').val())) {
           return showError("Please enter all required fields!");
         }
 
+        var vehicleId = $('input[name="id"]').val();
         var plateNum = $('#plateNumber').val();
-        $.get(`/vehicle/user/plate/${plateNum}`, (data, status) => {
+        $.get(`/vehicle/user/plate/${plateNum}?id=${vehicleId}`, (data, status) => {
           console.log(data.data);
           if (data.data) {
             showError("Plate number already exists.");
@@ -665,6 +677,7 @@
           $('input[name="engine_number"]').val(vehicle ? vehicle.engine_number : '');
           $('input[name="chassis_number"]').val(vehicle ? vehicle.chassis_number : '');
           $('select[name="own_vehicle"]').val(vehicle ? (vehicle.own_vehicle ? 'yes' : 'no') : '');
+          $('select[name="isActive"]').val(vehicle ? (vehicle.status ? 'active' : 'disabled') : '');
 
           if (!vehicle || (vehicle && vehicle.own_vehicle)) {
             $('#deedOfSaleField').addClass('d-none');
@@ -698,6 +711,17 @@
           }
           $('.photos-preview').html(photosStr);
           initImagePreview();
+
+          if (action == 'add') {
+            $('#isActiveField').addClass('d-none');
+            $('select[name="isActive"]').removeAttr('required').removeAttr('disabled');
+          } else if (action == 'edit') {
+            $('#isActiveField').removeClass('d-none');
+            $('select[name="isActive"]').attr('required', 'required').removeAttr('disabled');
+          } else {
+            $('#isActiveField').removeClass('d-none');
+            $('select[name="isActive"]').removeAttr('required').attr('disabled', 'disabled');
+          }
 
           if (action == 'add' || action == 'edit') {
             $('#saveVehicle').removeClass('d-none');
@@ -775,6 +799,7 @@
       }
 
       $('.viewUser').click(function() {
+        hideError('jsError2');
         var action = $(this).data('action');
         var type = $(this).data('type');
         var data = $(this).data('json');
@@ -836,17 +861,17 @@
         if (action == 'edit') {
           $('#userId').val(data.id);
           $('#modalHeader').html("Edit");
-          $('input[name="firstname"]').removeAttr('disabled');
+          $('input[name="firstname"]').removeAttr('disabled').attr('required', 'required');
           $('input[name="middlename"]').removeAttr('disabled');
-          $('input[name="lastname"]').removeAttr('disabled');
-          $('input[name="email"]').removeAttr('disabled');
-          $('select[name="rank"]').removeAttr('disabled');
+          $('input[name="lastname"]').removeAttr('disabled').attr('required', 'required');
+          $('input[name="email"]').removeAttr('disabled').attr('required', 'required');
+          $('select[name="rank"]').removeAttr('disabled').attr('required', 'required');
           $('input[name="endorser"]').removeAttr('disabled');
-          $('textarea[name="address"]').removeAttr('disabled');
-          $('input[name="designation"]').removeAttr('disabled');
-          $('select[name="office"]').removeAttr('disabled');
+          $('textarea[name="address"]').removeAttr('disabled').attr('required', 'required');
+          $('input[name="designation"]').removeAttr('disabled').attr('required', 'required');
+          $('select[name="office"]').removeAttr('disabled').attr('required', 'required');
           $('input[name="otherOffice"]').removeAttr('disabled');
-          $('input[name="mobile"]').removeAttr('disabled');
+          $('input[name="mobile"]').removeAttr('disabled').attr('required', 'required');
           $('input[name="telephone"]').removeAttr('disabled');
           $('select[name="status"]').removeAttr('disabled');
           $('#saveModal').removeClass('d-none');
@@ -892,31 +917,31 @@
         } else if (action == 'add') {
           $('#userId').val("");
           $('#modalHeader').html("Add");
-          $('input[name="firstname"]').removeAttr('disabled');
+          $('input[name="firstname"]').removeAttr('disabled').attr('required', 'required');
           $('input[name="middlename"]').removeAttr('disabled');
-          $('input[name="lastname"]').removeAttr('disabled');
-          $('input[name="email"]').removeAttr('disabled');
-          $('select[name="rank"]').removeAttr('disabled');
+          $('input[name="lastname"]').removeAttr('disabled').attr('required', 'required');
+          $('input[name="email"]').removeAttr('disabled').attr('required', 'required');
+          $('select[name="rank"]').removeAttr('disabled').attr('required', 'required');
           $('input[name="endorser"]').removeAttr('disabled');
-          $('textarea[name="address"]').removeAttr('disabled');
-          $('input[name="designation"]').removeAttr('disabled');
-          $('select[name="office"]').removeAttr('disabled');
+          $('textarea[name="address"]').removeAttr('disabled').attr('required', 'required');
+          $('input[name="designation"]').removeAttr('disabled').attr('required', 'required');
+          $('select[name="office"]').removeAttr('disabled').attr('required', 'required');
           $('input[name="otherOffice"]').removeAttr('disabled');
-          $('input[name="mobile"]').removeAttr('disabled');
+          $('input[name="mobile"]').removeAttr('disabled').attr('required', 'required');
           $('input[name="telephone"]').removeAttr('disabled');
           $('#saveModal').removeClass('d-none');
           $('#changePasswordForm').addClass('d-none');
           $('#passwordForm').removeClass('d-none');
           $('#passwordInputs').removeClass('d-none');
-          $('#password').removeAttr('required');
-          $('#confirmPassword').removeAttr('required');
+          $('#password').attr('required', 'required');
+          $('#confirmPassword').attr('required', 'required');
           $("#changePassword").prop("checked", false);
           $('#statusForm').addClass("d-none");
           $('#endorserId').removeClass("d-none");
           $('#endorserIdLabel').removeClass("d-none");
           $('#driverLicense').removeClass("d-none");
           $('#driverLicenseLabel').removeClass("d-none");
-          $('#pnpId').removeClass("d-none");
+          $('#pnpId').removeClass("d-none").attr('required', 'required');
           $('#pnpIdLabel').removeClass("d-none");
         }
       });
@@ -935,28 +960,36 @@
 
       $('#userForm').submit(function(e) {
         e.preventDefault();
-        hideError();
+        hideError('jsError2');
+
+        var userId = $('#userId').val();
 
         var email = $('#email').val();
         if (!validateEmail(email)) {
-          return showError("Invalid email format");
+          return showError("Invalid email format", 'jsError2');
         }
 
         var changePass = $('#changePassword').is(":checked");
-        if (changePass) {
+        if (changePass || !userId) {
           var password = $('#password').val();
           var confirmPassword = $('#passwordConfirm').val();
           if (password != confirmPassword) {
-            return showError("Password not match");
+            return showError("Password not match", 'jsError2');
           }
         }
 
         var mobile = $('#mobile').val();
         if (!validateMobile(mobile)) {
-          return showError("Use this as mobile number format: 09XXXXXXXXX");
+          return showError("Use this as mobile number format: 09XXXXXXXXX", 'jsError2');
         }
 
-        $(this).unbind('submit').submit();
+        $.get(`/user/email/${email}?id=${userId}`, (data, status) => {
+          if (data.data) {
+            showError("Email already exists.", 'jsError2');
+          } else {
+            $(this).unbind('submit').submit();
+          }
+        });
       });
 
       $('.file').change(function() {

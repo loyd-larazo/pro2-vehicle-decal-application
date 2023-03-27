@@ -27,14 +27,14 @@ function validateEmail(email) {
   return false;
 }
 
-function showError(msg) {
-  $('#jsError').html(msg).removeClass('d-none');
+function showError(msg, id) {
+  $(`#${id ? id : 'jsError'}`).html(msg).removeClass('d-none');
   $(".modal").animate({ scrollTop: 0 }, "slow");
   window.scrollTo(0, 0);
 }
 
-function hideError() {
-  $('#jsError').html("").addClass('d-none');
+function hideError(id) {
+  $(`#${id ? id : 'jsError'}`).html("").addClass('d-none');
 }
 
 function validateMobile(num) {

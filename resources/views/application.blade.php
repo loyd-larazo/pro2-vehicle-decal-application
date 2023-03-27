@@ -136,10 +136,16 @@
                 return showError("Use this as mobile number format: 09XXXXXXXXX");
               }
 
-              // next step
-              $('#applicantInfo').addClass('d-none');
-              $('#vehicleInfo').removeClass('d-none');
-              window.scrollTo(0, 0);
+              $.get(`/user/email/${email}`, (data, status) => {
+                if (data.data) {
+                  showError("Email already exists.");
+                } else {
+                  // next step
+                $('#applicantInfo').addClass('d-none');
+                $('#vehicleInfo').removeClass('d-none');
+                window.scrollTo(0, 0);
+                }
+              });
             }
           });
         });
