@@ -3,7 +3,7 @@
 @section('content')
   <div class="row p-0 m-0 mb-2">
     <img class="logo-heading col-auto " src="/images/logo.png"/>
-    <h1 class="col mt-3">{{ ucfirst($userType) }}</h1>
+    <h1 class="col mt-3">{{ ucfirst($userType == 'issuers' ? 'admin' : ($userType == 'admins' ? 'superadmin' : $userType)) }}</h1>
     @if (Session::get('userType') && in_array(Session::get('userType'), ["admin"]))
       <div class="col-auto">
         <button class="btn btn-primary btn-sm mt-4 viewUser" data-type="{{ $userType }}" data-action="add" data-bs-toggle="modal" data-bs-target="#viewUserModal">
@@ -759,11 +759,11 @@
                 $('#cr').attr('required', 'required');
               }
 
-              if (vehicle.deed_of_sale) {
-                $('#deedOfSale').removeAttr('required');
-              } else {
-                $('#deedOfSale').attr('required', 'required');
-              }
+              // if (vehicle.deed_of_sale) {
+              //   $('#deedOfSale').removeAttr('required');
+              // } else {
+              //   $('#deedOfSale').attr('required', 'required');
+              // }
 
               if (vehicle.photos && vehicle.photos.length) {
                 $('#photos').removeAttr('required');
@@ -941,7 +941,10 @@
           $('#endorserIdLabel').removeClass("d-none");
           $('#driverLicense').removeClass("d-none");
           $('#driverLicenseLabel').removeClass("d-none");
-          $('#pnpId').removeClass("d-none").attr('required', 'required');
+          if (userType == 'users') {
+            $('#pnpId').removeClass("d-none").attr('required', 'required');
+          }
+          
           $('#pnpIdLabel').removeClass("d-none");
         }
       });

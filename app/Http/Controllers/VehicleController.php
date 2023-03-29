@@ -55,6 +55,7 @@ class VehicleController extends Controller
                                         ->whereDate('created_at', '<=', $to);
                                 })
                                 ->whereNotNull('user_id')
+                                ->where('status', 1)
                                 ->paginate(20);
     return view('admin.vehicles', [
       'vehicles' => $userVehicles,
