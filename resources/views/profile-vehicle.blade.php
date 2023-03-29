@@ -30,6 +30,7 @@
       <div class="col-auto mt-2">
         <div class="input-group">
           <select class="form-select" onchange="this.form.submit()" id="status" name="status">
+            <option value="all" {{ $status && $status == 'all' ? 'selected' : '' }}>All</option>
             <option value="pending" {{ $status && $status == 'pending' ? 'selected' : '' }}>Pending</option>
             <option value="approved" {{ $status && $status == 'approved' ? 'selected' : '' }}>Approved</option>
             <option value="rejected" {{ $status && $status == 'rejected' ? 'selected' : '' }}>Rejected</option>
@@ -119,6 +120,9 @@
                   <div class="col-auto">
                     <label class="col-form-label">of {{ $vehicles->lastPage() }}</label>
                   </div>
+                  <div class="col p-0 text-end">
+                    <a href="/report/user/{{$user->id}}/vehicles?search={{$search}}&status={{$status}}" target="_blank" class="btn btn-info mt-2"> <i class="fa-solid fa-print me-2"></i>Print List</a>
+                  </div>
                 </div>
               </th>
             </tr>
@@ -203,15 +207,46 @@
               </div>
             </div>
           </div>
+
+          <div class="form-floating mb-3">
+            <select class="form-control" id="ownVehicle" name="own_vehicle" required>
+              <option value="">Select from options</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+            <label for="ownVehicle">Do you own the vehicle?</label>
+          </div>
+
+          <div id="deedOfSaleField" class="d-none">
+            <div id="deedOfSaleFile" class="form-floating mb-3">
+              <input class="form-control file" id="deedOfSale" data-target="src" data-preview="#deedOfSalePreview" type="file" name="deed_of_sale" accept="image/*" placeholder="Deed of Sale" />
+              <label for="deedOfSale">Deed of Sale</label>
+            </div>
+            <label id="deedOfSaleLabel">Deed of Sale</label>
+            <div class="form-floating mb-3 text-center">
+              <img id="deedOfSalePreview" class="preview-images prev-image"/>
+            </div>
+          </div>
           
           <div>
-            <div id="orCrFile" class="form-floating mb-3">
-              <input class="form-control file" required id="orCr" data-target="src" data-preview="#orCrPreview" type="file" name="or_cr" accept="image/*" placeholder="Upload your OR/CR" />
-              <label for="orCr">OR/CR</label>
+            <div id="orFile" class="form-floating mb-3">
+              <input class="form-control file" required id="or" data-target="src" data-preview="#orPreview" type="file" name="or" accept="image/*" placeholder="Upload your OR" />
+              <label for="or">OR</label>
             </div>
-            <label id="orCrLabel">OR/CR</label>
+            <label id="orLabel">OR</label>
             <div class="form-floating mb-3 text-center">
-              <img id="orCrPreview" class="preview-images prev-image"/>
+              <img id="orPreview" class="preview-images prev-image"/>
+            </div>
+          </div>
+
+          <div>
+            <div id="crFile" class="form-floating mb-3">
+              <input class="form-control file" required id="cr" data-target="src" data-preview="#crPreview" type="file" name="cr" accept="image/*" placeholder="Upload your CR" />
+              <label for="cr">CR</label>
+            </div>
+            <label id="crLabel">CR</label>
+            <div class="form-floating mb-3 text-center">
+              <img id="crPreview" class="preview-images prev-image"/>
             </div>
           </div>
           
@@ -241,6 +276,7 @@
 
         <div class="modal-footer">
           <button id="saveModal" type="submit" class="btn btn-success">Save</button>
+          <a id="printVehicleReport" target="_blank" class="btn btn-info"> <i class="fa-solid fa-print me-2"></i>Print</a>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
       </form>
@@ -267,6 +303,8 @@
 
   <script>
     $(function() {
+      ownVehicleChange();
+
       function loadImage(file, type, target) {
         let reader = new FileReader();
         reader.onload = function(event) {
@@ -283,6 +321,10 @@
       $('#userForm').submit(function(e) {
         e.preventDefault();
         hideError();
+
+        if ($('#ownVehicle').val() == 'no' && !$('#deedOfSale').val()) {
+          return showError("Please enter all required fields!");
+        }
 
         var plateNum = $('#plateNumber').val();
         $.get(`/vehicle/user/plate/${plateNum}`, (data, status) => {
@@ -335,12 +377,31 @@
         $('input[name="color"]').val(data ? data.color : '');
         $('input[name="engine_number"]').val(data ? data.engine_number : '');
         $('input[name="chassis_number"]').val(data ? data.chassis_number : '');
+        $('select[name="own_vehicle"]').val(data && data.own_vehicle ? 'yes' : 'no');
 
-        var orCrPath = ''
-        if (data && data.or_cr) {
-          orCrPath = `/storage/${data.or_cr}`;
+        if (data && data.own_vehicle) {
+          $('#deedOfSaleField').addClass('d-none');
+        } else {
+          $('#deedOfSaleField').removeClass('d-none');
         }
-        $('#orCrPreview').attr('src', orCrPath);
+
+        var orPath = ''
+        if (data && data.or) {
+          orPath = `/storage/${data.or}`;
+        }
+        $('#orPreview').attr('src', orPath);
+
+        var crPath = ''
+        if (data && data.cr) {
+          crPath = `/storage/${data.cr}`;
+        }
+        $('#crPreview').attr('src', crPath);
+
+        var deedOfSalePath = ''
+        if (data && data.deed_of_sale) {
+          deedOfSalePath = `/storage/${data.deed_of_sale}`;
+        }
+        $('#deedOfSalePreview').attr('src', deedOfSalePath);
 
         var photosStr = '';
         if (data && data.photos && data.photos.length) {
@@ -354,6 +415,7 @@
         $('#modalHeader').html(capitalize(action));
 
         if (action == 'add' || action == 'edit') {
+          $('#printVehicleReport').addClass("d-none");
           $('select[name="type"]').attr('required', 'required').removeAttr('disabled');
           $('input[name="plate_number"]').attr('required', 'required').removeAttr('disabled');
           $('input[name="make"]').attr('required', 'required').removeAttr('disabled');
@@ -362,18 +424,35 @@
           $('input[name="color"]').attr('required', 'required').removeAttr('disabled');
           $('input[name="engine_number"]').attr('required', 'required').removeAttr('disabled');
           $('input[name="chassis_number"]').attr('required', 'required').removeAttr('disabled');
+          $('select[name="own_vehicle"]').attr('required', 'required').removeAttr('disabled');
 
-          $('#orCrFile').removeClass('d-none');
+          $('#orFile').removeClass('d-none');
+          $('#crFile').removeClass('d-none');
+          $('#deedOfSaleFile').removeClass('d-none');
           $('#photosFile').removeClass('d-none');
-          $('#orCrLabel').addClass('d-none');
+          $('#orLabel').addClass('d-none');
+          $('#crLabel').addClass('d-none');
+          $('#deedOfSaleLabel').addClass('d-none');
           $('#photosLabel').addClass('d-none');
           $('#saveModal').removeClass('d-none');
 
           if (data) {
-            if (data.or_cr) {
-              $('#orCr').removeAttr('required');
+            if (data.or) {
+              $('#or').removeAttr('required');
             } else {
-              $('#orCr').attr('required', 'required');
+              $('#or').attr('required', 'required');
+            }
+
+            if (data.cr) {
+              $('#cr').removeAttr('required');
+            } else {
+              $('#cr').attr('required', 'required');
+            }
+
+            if (data.deed_of_sale) {
+              $('#deedOfSale').removeAttr('required');
+            } else {
+              $('#deedOfSale').attr('required', 'required');
             }
 
             if (data.photos && data.photos.length) {
@@ -383,6 +462,7 @@
             }
           }
         } else if (action == 'view') {
+          $('#printVehicleReport').removeClass("d-none");
           $('select[name="type"]').removeAttr('required').attr('disabled', 'disabled');
           $('input[name="plate_number"]').removeAttr('required').attr('disabled', 'disabled');
           $('input[name="make"]').removeAttr('required').attr('disabled', 'disabled');
@@ -391,13 +471,25 @@
           $('input[name="color"]').removeAttr('required').attr('disabled', 'disabled');
           $('input[name="engine_number"]').removeAttr('required').attr('disabled', 'disabled');
           $('input[name="chassis_number"]').removeAttr('required').attr('disabled', 'disabled');
+          $('select[name="own_vehicle"]').removeAttr('required').attr('disabled', 'disabled');
           
-          $('#orCrFile').addClass('d-none');
+          $('#orFile').addClass('d-none');
+          $('#crFile').addClass('d-none');
+          $('#deedOfSaleFile').addClass('d-none');
           $('#photosFile').addClass('d-none');
-          $('#orCrLabel').removeClass('d-none');
+          $('#orLabel').removeClass('d-none');
+          $('#crLabel').removeClass('d-none');
+          $('#deedOfSaleLabel').removeClass('d-none');
           $('#photosLabel').removeClass('d-none');
           $('#saveModal').addClass('d-none');
+
+          $('#printVehicleReport').attr('href', `/report/vehicle/${data.id}`);
         }
+      })
+
+      $('#downloadQrCode').click(function() {
+        var name = $(this).data('name');
+        saveSvg($('#qrCode'), `${name}.svg`);
       })
     });
     

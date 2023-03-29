@@ -56,7 +56,7 @@ return new class extends Migration
 
     Schema::create('user_vehicles', function (Blueprint $table) {
       $table->id();
-      $table->bigInteger('user_id')->unsigned();
+      $table->bigInteger('user_id')->unsigned()->nullable();
       $table->string('make');
       $table->string('plate_number');
       $table->string('model');
