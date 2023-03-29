@@ -176,7 +176,9 @@ class UserController extends Controller
       ]);
     }
 
-    return redirect()->back()->with('success', ucfirst($user->type)." has been saved!"); 
+    $txtMsg = ucfirst($user->type == 'issuers' ? 'admin' : ($user->type == 'admins' ? 'superadmin' : $user->type));
+
+    return redirect()->back()->with('success', $txtMsg." has been saved!"); 
   }
 
   public function validateEmail(Request $request, $email) {
