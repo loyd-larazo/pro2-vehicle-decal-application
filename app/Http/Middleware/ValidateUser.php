@@ -45,7 +45,7 @@ class ValidateUser
       $request->session()->put('pending_release', $forRelease);
     }
 
-    if ($user->type == "admin") {
+    if ($user->type == "issuer" || $user->type == "admin") {
       $applicants = Applicant::where('status', 'pending')->count();
       $request->session()->put('pending_applicants', $applicants);
     }

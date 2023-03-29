@@ -82,9 +82,11 @@
                   @endif
                   <td class="text-center">
                     <button class="btn btn-sm btn-primary viewApplicant" data-id="{{ $applicant->id }}" data-json="{{ json_encode($applicant) }}" data-bs-toggle="modal" data-bs-target="#viewApplicantModal">View</button>
-                    @if ($applicant->status == "pending")
-                      <button class="btn btn-sm btn-success verify" data-id="{{ $applicant->id }}" data-type="approve" data-bs-toggle="modal" data-bs-target="#verifyModal">Approve</button>
-                      <button class="btn btn-sm btn-danger verify" data-id="{{ $applicant->id }}" data-type="reject" data-bs-toggle="modal" data-bs-target="#verifyModal">Reject</button>
+                    @if (Session::get('userType') && in_array(Session::get('userType'), ["admin"]))
+                      @if ($applicant->status == "pending")
+                        <button class="btn btn-sm btn-success verify" data-id="{{ $applicant->id }}" data-type="approve" data-bs-toggle="modal" data-bs-target="#verifyModal">Approve</button>
+                        <button class="btn btn-sm btn-danger verify" data-id="{{ $applicant->id }}" data-type="reject" data-bs-toggle="modal" data-bs-target="#verifyModal">Reject</button>
+                      @endif
                     @endif
                   </td>
                 </tr>
