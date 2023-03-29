@@ -176,7 +176,7 @@ class UserController extends Controller
       ]);
     }
 
-    $txtMsg = ucfirst($user->type == 'issuers' ? 'admin' : ($user->type == 'admins' ? 'superadmin' : $user->type));
+    $txtMsg = ucfirst($user->type == 'issuer' ? 'admin' : ($user->type == 'admin' ? 'superadmin' : $user->type));
 
     return redirect()->back()->with('success', $txtMsg." has been saved!"); 
   }
