@@ -26,6 +26,8 @@ Route::post('/login', [UserController::class, 'login']);
 Route::get('/application', [ApplicantController::class, 'applicationPage']);
 Route::post('/application', [ApplicantController::class, 'application']);
 Route::get('/applicant/{id}', [ApplicantController::class, 'applicantChangePage']);
+Route::get('/vehicle/user/plate/{plate}', [VehicleController::class, 'validatePlatenumber']);
+Route::get('/user/email/{email}', [UserController::class, 'validateEmail']);
 
 Route::middleware([ValidateUser::class])->group(function () {
   Route::get('/', [AppController::class, 'dashboard']);
@@ -43,7 +45,6 @@ Route::middleware([ValidateUser::class])->group(function () {
 
   Route::get('/vehicles', [VehicleController::class, 'index'])->name('vehicles');
   Route::get('/vehicle/{id}/{status}', [VehicleController::class, 'updateVehicle']);
-  Route::get('/vehicle/user/plate/{plate}', [VehicleController::class, 'validatePlatenumber']);
 
   Route::get('/release', [VehicleController::class, 'release'])->name('release');
   Route::get('/release/{id}/{status}', [VehicleController::class, 'updateSticker']);
@@ -52,7 +53,11 @@ Route::middleware([ValidateUser::class])->group(function () {
   Route::get('/report/applicants/{status}', [ReportController::class, 'applicants']);
   Route::get('/report/applicant/{id}', [ReportController::class, 'applicant']);
   Route::get('/report/vehicles/{status}', [ReportController::class, 'vehicles']);
+  Route::get('/report/vehicle/{id}', [ReportController::class, 'vehicle']);
+  Route::get('/report/user/{id}', [ReportController::class, 'user']);
+  Route::get('/report/user/{id}/vehicles', [ReportController::class, 'userVehicles']);
   Route::get('/reports/app/{userType}', [ReportController::class, 'users']);
+  Route::get('/report/release', [ReportController::class, 'release']);
 
   Route::get('/logout', [UserController::class, 'logout']);
 });

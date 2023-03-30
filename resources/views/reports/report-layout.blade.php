@@ -44,6 +44,19 @@
     <div id="layoutSidenav">
       <main class="w-100 mt-5 mx-5">
         <div class="container-fluid px-4">
+          <div class="row mb-3">
+            <div class="col-auto">
+              <img class="logo-report-heading col-auto " src="/images/logo.png"/>
+            </div>
+            <div class="col-auto h5 pt-4">
+              Republic of the Philippines<br>
+              Philippine National Police<br>
+              Police Regional Office 2<br>
+            </div>
+            <div class="col text-end">
+              {{date("F j, Y h:i:sA")}}
+            </div>
+          </div>
           
           @yield('content')
           

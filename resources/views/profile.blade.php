@@ -14,6 +14,8 @@
         @if(isset($user))
           <input type="hidden" name="id" value="{{ $user->id }}" />
           <input type="hidden" name="pnpIdPath" value="{{ $user->pnp_id_picture }}" />
+          <input type="hidden" name="endorserIdPath" value="{{ $user->endorser_id }}" />
+          <input type="hidden" name="driversLicensePath" value="{{ $user->drivers_license }}" />
         @endif
 
         <div id="jsError" class="alert alert-danger text-center d-none" role="alert"></div>
@@ -92,8 +94,37 @@
             <option {{ isset($user) && $user->rank == 'PMSg' ? 'selected' : '' }} value="PMSg">PMSg</option>
             <option {{ isset($user) && $user->rank == 'PSSg' ? 'selected' : '' }} value="PSSg">PSSg</option>
             <option {{ isset($user) && $user->rank == 'PCpl' ? 'selected' : '' }} value="PCpl">PCpl</option>
+            <option {{ isset($user) && $user->rank == 'Patrolman' ? 'selected' : '' }} value="Patrolman">Patrolman</option>
+            <option {{ isset($user) && $user->rank == 'NUP' ? 'selected' : '' }} value="NUP">NUP</option>
+            <option {{ isset($user) && $user->rank == 'CIV' ? 'selected' : '' }} value="CIV">CIV</option>
           </select>
           <label for="rank">Rank</label>
+        </div>
+        <div id="civFields" class="{{(isset($user) && $user->rank == 'CIV') ? '' : 'd-none'}}">
+          <div class="form-floating mb-3">
+            <input class="form-control" id="endorser" type="text" name="endorser" placeholder="Enter your Name of Endorser" value="{{ isset($user) ? $user->endorser : '' }}"/>
+            <label for="endorser">Name of Endorser</label>
+          </div>
+
+          <div>
+            <div class="form-floating mb-3">
+              <input  {{ isset($user) ? '' : 'required' }} class="form-control file" id="endorserId" data-target="src" data-preview="#endorserIdPreview" type="file" name="endorser_id" accept="image/*" placeholder="Upload your Endorser ID" />
+              <label for="endorserId">Endorser ID</label>
+            </div>
+            <div class="form-floating mb-3 text-center">
+              <img id="endorserIdPreview" class="preview-images prev-image" src="{{ isset($user) ? '/storage/'.$user->endorser_id : '' }}"/>
+            </div>
+          </div>
+
+          <div>
+            <div class="form-floating mb-3">
+              <input  {{ isset($user) ? '' : 'required' }} class="form-control file" id="driverLicense" data-target="src" data-preview="#driverLicensePreview" type="file" name="drivers_license" accept="image/*" placeholder="Upload your Drivers License" />
+              <label for="driverLicense">Driver's License ID</label>
+            </div>
+            <div class="form-floating mb-3 text-center">
+              <img id="driverLicensePreview" class="preview-images prev-image" src="{{ isset($user) ? '/storage/'.$user->drivers_license : '' }}"/>
+            </div>
+          </div>
         </div>
         <div class="form-floating mb-3">
           <textarea required class="form-control" id="address" name="address">{{ isset($user) ? $user->address : '' }}</textarea>
@@ -158,6 +189,22 @@
   <script>
     $(function() {
       secureMobile();
+      rankChange();
+
+      function loadImage(file, type, target) {
+        let reader = new FileReader();
+        reader.onload = function(event) {
+          if (type == 'src') {
+            $(target).attr('src', event.target.result);
+          } else if (type == 'element') {
+            $(target).append(`<img class="preview-images prev-image" src="${event.target.result}"/>`);
+            initImagePreview();
+          }
+        }
+        reader.readAsDataURL(file);
+      }
+
+      const user = @json($user);
       
       $("#changePassword").prop("checked", false);
 
@@ -170,6 +217,16 @@
           $('#passwordInputs').addClass('d-none');
           $('#password').removeAttr('required');
           $('#confirmPassword').removeAttr('required');
+        }
+      });
+
+      $('.file').change(function() {
+        const preview = $(this).data('preview');
+        const target = $(this).data('target');
+
+        for (var i = 0; i < this.files.length; i++) {
+          let file = this.files[i];
+          loadImage(file, target, preview);
         }
       });
 
@@ -194,6 +251,12 @@
         var mobile = $('#mobile').val();
         if (!validateMobile(mobile)) {
           return showError("Use this as mobile number format: 09XXXXXXXXX");
+        }
+
+        if ($('#rank').val() != user.rank && ($('#rank').val() == 'CIV')) {
+          if (!$('#endorser').val() || !$('#endorserId').val() || !$('#driverLicense').val()) {
+            return showError("Please enter all required fields.");
+          }
         }
 
         $(this).unbind('submit').submit();

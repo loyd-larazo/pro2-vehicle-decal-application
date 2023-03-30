@@ -18,6 +18,7 @@ class Applicant extends Model
         'rank',
         'address',
         'designation',
+        'other_office',
         'office',
         'mobile',
         'telephone',
@@ -26,10 +27,17 @@ class Applicant extends Model
         'verified_date',
         'status',
         'remarks',
-        'email_sent'
+        'email_sent',
+        'endorser',
+        'endorser_id',
+        'drivers_license'
     ];
 
     public function verified() {
         return $this->belongsTo(User::class, 'verified_by', 'id');
+    }
+
+    public function vehicle() {
+        return $this->hasOne(UserVehicle::class, 'applicant_id', 'id');
     }
 }

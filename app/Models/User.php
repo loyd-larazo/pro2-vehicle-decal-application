@@ -27,10 +27,14 @@ class User extends Authenticatable
         'rank',
         'address',
         'designation',
+        'other_office',
         'office',
         'mobile',
         'telephone',
         'pnp_id_picture',
+        'endorser',
+        'endorser_id',
+        'drivers_license',
         'status'
     ];
 

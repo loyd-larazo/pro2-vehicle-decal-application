@@ -35,7 +35,7 @@ class ValidateUser
               ]);
 
     if ($user->type == "issuer" || $user->type == "admin") {
-      $vehicles = UserVehicle::where('verified_status', 'pending')->count();
+      $vehicles = UserVehicle::where('verified_status', 'pending')->whereNotNull('user_id')->count();
       $request->session()->put('pending_vehicles', $vehicles);
 
       $forRelease = UserVehicle::where('verified_status', 'approved')
@@ -45,7 +45,7 @@ class ValidateUser
       $request->session()->put('pending_release', $forRelease);
     }
 
-    if ($user->type == "admin") {
+    if ($user->type == "issuer" || $user->type == "admin") {
       $applicants = Applicant::where('status', 'pending')->count();
       $request->session()->put('pending_applicants', $applicants);
     }

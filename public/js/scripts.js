@@ -27,14 +27,14 @@ function validateEmail(email) {
   return false;
 }
 
-function showError(msg) {
-  $('#jsError').html(msg).removeClass('d-none');
+function showError(msg, id) {
+  $(`#${id ? id : 'jsError'}`).html(msg).removeClass('d-none');
   $(".modal").animate({ scrollTop: 0 }, "slow");
   window.scrollTo(0, 0);
 }
 
-function hideError() {
-  $('#jsError').html("").addClass('d-none');
+function hideError(id) {
+  $(`#${id ? id : 'jsError'}`).html("").addClass('d-none');
 }
 
 function validateMobile(num) {
@@ -162,5 +162,35 @@ function secureMobile() {
         return false
       }
     } 
+  });
+}
+
+function rankChange() {
+  $('#rank').change(function() {
+    if ($(this).val() == 'CIV') {
+      $('#civFields').removeClass('d-none');
+    } else {
+      $('#civFields').addClass('d-none');
+    }
+  });
+}
+
+function officeChange() {
+  $('#office').change(function() {
+    if ($(this).val() == 'others') {
+      $('#officeFields').removeClass('d-none');
+    } else {
+      $('#officeFields').addClass('d-none');
+    }
+  });
+}
+
+function ownVehicleChange() {
+  $('#ownVehicle').change(function() {
+    if ($(this).val() == 'no') {
+      $('#deedOfSaleField').removeClass('d-none');
+    } else {
+      $('#deedOfSaleField').addClass('d-none');
+    }
   });
 }
