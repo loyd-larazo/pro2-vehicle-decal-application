@@ -121,7 +121,7 @@
     <div class="modal-dialog">
       <form id="userForm" class="modal-content" action="/app/{{ $userType }}" method="POST">
         <div class="modal-header">
-          <h5 class="modal-title" id="viewUserModalLabel"><span id="modalHeader">View</span> {{ rtrim(ucfirst($userType), "s") }}</h5>
+          <h5 class="modal-title" id="viewUserModalLabel"><span id="modalHeader">View</span> {{ rtrim(ucfirst($userType == 'issuers' ? 'admin' : ($userType == 'admins' ? 'superadmin' : $userType)), "s") }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
