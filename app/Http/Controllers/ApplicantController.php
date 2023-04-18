@@ -357,6 +357,7 @@ class ApplicantController extends Controller
 
     Applicant::where('status', 'rejected')
               ->where('purged', 0)
+              ->with(['vehicle.photos'])
               ->chunk(100, function($applicants) {
                 foreach ($applicants as $applicant) {
                   $pnpImage = $applicant->pnp_id_picture;
@@ -380,6 +381,37 @@ class ApplicantController extends Controller
 
                   $applicant->purged = 1;
                   $applicant->save();
+
+                  if ($applicant->vehicle) {
+                    $vehicle = $applicant->vehicle;
+                    $or = $vehicle->or;
+                    $cr = $vehicle->cr;
+                    $dos = $vehicle->deed_of_sale;
+
+                    if ($or) {
+                      Storage::disk('public')->delete($or);
+                      $vehicle->or = "";
+                    }
+
+                    if ($cr) {
+                      Storage::disk('public')->delete($cr);
+                      $vehicle->cr = "";
+                    }
+
+                    if ($dos) {
+                      Storage::disk('public')->delete($dos);
+                      $vehicle->deed_of_sale = "";
+                    }
+
+                    $vehicle->save();
+
+                    $photos = $vehicle->photos;
+                    foreach ($photos as $photo) {
+                      Storage::disk('public')->delete($photo);
+                      $photo->delete();
+                    }
+                  }
+
                 }
               });
 
