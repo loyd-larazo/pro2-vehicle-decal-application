@@ -94,7 +94,13 @@ class VehicleController extends Controller
       $name = $userVehicle->user->firstname . ' ' . $userVehicle->user->middlename . ' ' . $userVehicle->user->lastname;
       $code =  $codePrefix . $generatedCode;
       $userVehicle->code = $code;
-      $qrData = $name . " - " . $userVehicle->type . " - " . $userVehicle->plate_number . " - " . $userVehicle->make . " - " . $userVehicle->model . " - " . $userVehicle->year_model . " - " . $code;
+      $qrData = "Name:" . $name . "\n" . 
+                "Vehicle Type:" . $userVehicle->type . "\n" . 
+                "Plate Number:" . $userVehicle->plate_number . "\n" . 
+                "Make:" . $userVehicle->make . "\n" . 
+                "Series:" . $userVehicle->model . "\n" . 
+                "Year Model:" . $userVehicle->year_model . "\n" . 
+                "Passcard Code:" . $code;
       $userVehicle->qr_code = QrCode::size(300)->generate($qrData);
 
       $settingModel->value = $generatedCode;
@@ -165,7 +171,7 @@ class VehicleController extends Controller
   public function updateSticker(Request $request, $id, $status) {
     $user = $request->get('user');
 
-    $userVehicle = UserVehicle::find($id);
+    $userVehicle = UserVehicle::with(['user'])->where('id', $id)->first();
     if ($userVehicle) {
       if ($status == 'renew') {
         $userVehicle->issued_status = "renewal";
@@ -173,12 +179,25 @@ class VehicleController extends Controller
 
         return redirect('/profile/vehicles')->with('success', 'Renewal request has been sent');
       } else if ($status == 'release') {
+        $user = $userVehicle->user;
+        $name = $user->firstname . ' ' . $user->middlename . ' ' . $user->lastname;
+
         $today = Carbon::now();
         $expiryDate = Carbon::now()->addYear();
         $userVehicle->issued_status = "issued";
         $userVehicle->issued_by = $user->id;
         $userVehicle->issued_date = $today->toDateTimeString();
         $userVehicle->expiration_date = $expiryDate->toDateTimeString();
+        $qrData = "Name:" . $name . "\n" . 
+                                "Vehicle Type:" . $userVehicle->type . "\n" . 
+                                "Plate Number:" . $userVehicle->plate_number . "\n" . 
+                                "Make:" . $userVehicle->make . "\n" . 
+                                "Series:" . $userVehicle->model . "\n" . 
+                                "Year Model:" . $userVehicle->year_model . "\n" . 
+                                "Passcard Code:" . $userVehicle->code . "\n" . 
+                                "Start Date:" . $today->toDateTimeString() . "\n" . 
+                                "Expiration Date:" . $expiryDate->toDateTimeString();
+        $userVehicle->qr_code = QrCode::size(300)->generate($qrData);
         $userVehicle->save();
 
         return redirect('/release')->with('success', 'Sticker/Passcard has been released!');

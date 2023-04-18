@@ -13,6 +13,8 @@ use App\Models\UserVehicle;
 use App\Models\VehicleImage;
 use App\Models\Setting;
 
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use QrCode;
 
 class ApplicantController extends Controller
@@ -219,8 +221,12 @@ class ApplicantController extends Controller
       return $page;
     });
 
-    $applicants = Applicant::when($status != 'all', function($query) use ($status) {
-                            $query->where('status', $status);
+    $applicants = Applicant::when($status, function($query) use ($status) {
+                            if ($status == 'all') {
+                              $query->where('status', '!=' , 'rejected');
+                            } else {
+                              $query->where('status', $status);
+                            }
                           })
                           ->where(function($query) use ($search) {
                             $query->where('email', 'like', "%$search%")
@@ -322,7 +328,13 @@ class ApplicantController extends Controller
         $name = $applicant->firstname . ' ' . $applicant->middlename . ' ' . $applicant->lastname;
         $code =  $codePrefix . $generatedCode;
         $applicant->vehicle->code = $code;
-        $qrData = $name . " - " . $applicant->vehicle->type . " - " . $applicant->vehicle->plate_number . " - " . $applicant->vehicle->make . " - " . $applicant->vehicle->model . " - " . $applicant->vehicle->year_model . " - " . $code;
+        $qrData = "Name:" . $name . "\n" . 
+                  "Vehicle Type:" . $applicant->vehicle->type . "\n" . 
+                  "Plate Number:" . $applicant->vehicle->plate_number . "\n" . 
+                  "Make:" . $applicant->vehicle->make . "\n" . 
+                  "Series:" . $applicant->vehicle->model . "\n" . 
+                  "Year Model:" . $applicant->vehicle->year_model . "\n" . 
+                  "Passcard Code:" . $code;
         $applicant->vehicle->qr_code = QrCode::size(300)->generate($qrData);
         
         $settingModel->value = $generatedCode;
@@ -339,5 +351,40 @@ class ApplicantController extends Controller
         'send_email_to' => $applicant->id
       ]);
     }
+  }
+
+  public function purge(Request $request) {
+
+    Applicant::where('status', 'rejected')
+              ->where('purged', 0)
+              ->chunk(100, function($applicants) {
+                foreach ($applicants as $applicant) {
+                  $pnpImage = $applicant->pnp_id_picture;
+                  $dl = $applicant->drivers_license;
+                  $endorserId = $applicant->endorser_id;
+
+                  if ($pnpImage) {
+                    Storage::disk('public')->delete($pnpImage);
+                    $applicant->pnp_id_picture = "";
+                  }
+                  
+                  if ($dl) {
+                    Storage::disk('public')->delete($dl);
+                    $applicant->drivers_license = "";
+                  }
+
+                  if ($endorserId) {
+                    Storage::disk('public')->delete($endorserId);
+                    $applicant->endorser_id = "";
+                  }
+
+                  $applicant->purged = 1;
+                  $applicant->save();
+                }
+              });
+
+    return \Redirect::route("applicants", [
+      'success' => "Rejected images has been purged!"
+    ]);
   }
 }

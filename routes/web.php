@@ -59,5 +59,7 @@ Route::middleware([ValidateUser::class])->group(function () {
   Route::get('/reports/app/{userType}', [ReportController::class, 'users']);
   Route::get('/report/release', [ReportController::class, 'release']);
 
+  Route::get('/purge/images', [ApplicantController::class, 'purge']);
+
   Route::get('/logout', [UserController::class, 'logout']);
 });
