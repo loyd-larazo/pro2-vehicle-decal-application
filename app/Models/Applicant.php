@@ -26,6 +26,7 @@ class Applicant extends Model
         'verified_by',
         'verified_date',
         'status',
+        'purged',
         'remarks',
         'email_sent',
         'endorser',

@@ -53,6 +53,13 @@
             </button>
           </div>
         </div>
+        @if ($status && $status == 'rejected')
+          @if (Session::get('userType') && in_array(Session::get('userType'), ["admin"]))
+            <div class="col-auto mt-2">
+              <a href="/purge/images" class="btn btn-danger">Purge Images</a>
+            </div>
+          @endif
+        @endif
       </form>
 
       <div class="table-responsive">

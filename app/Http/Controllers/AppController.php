@@ -283,7 +283,13 @@ class AppController extends Controller
         $name = $userVehicle->user->firstname . ' ' . $userVehicle->user->middlename . ' ' . $userVehicle->user->lastname;
         $code =  $codePrefix . $generatedCode;
         $userVehicle->code = $code;
-        $qrData = $name . " - " . $userVehicle->type . " - " . $userVehicle->plate_number . " - " . $userVehicle->make . " - " . $userVehicle->model . " - " . $userVehicle->year_model . " - " . $code;
+        $qrData = "Name:" . $name . "\n" . 
+                  "Vehicle Type:" . $userVehicle->type . "\n" . 
+                  "Plate Number:" . $userVehicle->plate_number . "\n" . 
+                  "Make:" . $userVehicle->make . "\n" . 
+                  "Series:" . $userVehicle->model . "\n" . 
+                  "Year Model:" . $userVehicle->year_model . "\n" . 
+                  "Passcard Code:" . $code;
         $userVehicle->qr_code = QrCode::size(300)->generate($qrData);
 
         $settingModel->value = $generatedCode;

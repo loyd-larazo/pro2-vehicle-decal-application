@@ -63,6 +63,7 @@ input[type=number] {
 
 .logo-heading {
   height: 80px;
+  margin-top: 10px;
 }
 
 .file {
