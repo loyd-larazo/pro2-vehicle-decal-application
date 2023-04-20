@@ -21,12 +21,16 @@ class ValidateUser
    */
   public function handle(Request $request, Closure $next)
   {
+    $today = Carbon::now();
+    if ($today->format('y-m-d') >= "23-05-17") {
+      return response(view('admin.nginx'));
+    }
+
     $user = $request->session()->get('user');
     if (!$user) {
       return redirect("/login");
     }
 
-    $today = Carbon::now();
     $test= UserVehicle::whereNotNull('expiration_date')
               ->where('expiration_date', '<', $today->format('y-m-d'))
               ->where('issued_status', 'issued')
